@@ -8,10 +8,8 @@ import {
 } from 'lucide-react';
 import { 
   MetricCard, 
-  RecentAnalyses, 
-  WeatherConditions, 
   AlertsSection, 
-  CropRecommendations 
+  CustomerSegments
 } from '../components/dashboard';
 import { Sidebar } from '../components/layout/Sidebar';
 
@@ -23,33 +21,96 @@ const mockDashboardData = {
     totalRevenue: 245600,
     retentionRate: 70
   },
+  customerSegments: [
+    {
+      id: 0,
+      name: 'Dormant/Churned',
+      count: 312,
+      percentage: 25,
+      avgRevenue: 45,
+      lastPurchase: '90+ days',
+      recommendations: [
+        'Re-engagement campaigns with special offers',
+        'Win-back strategies with significant incentives',
+        'Gather feedback via surveys'
+      ]
+    },
+    {
+      id: 1,
+      name: 'Loyal/Engaged',
+      count: 438,
+      percentage: 35,
+      avgRevenue: 1250,
+      lastPurchase: '7 days',
+      recommendations: [
+        'Loyalty programs with points and exclusive discounts',
+        'VIP treatment with personalized communication',
+        'Upselling and cross-selling opportunities',
+        'Encourage reviews and referrals'
+      ]
+    },
+    {
+      id: 2,
+      name: 'New/Recent but Inactive',
+      count: 250,
+      percentage: 20,
+      avgRevenue: 180,
+      lastPurchase: '30 days',
+      recommendations: [
+        'Onboarding campaigns with platform guidance',
+        'Nurturing sequences with product recommendations',
+        'First-purchase incentives and discounts',
+        'Gather feedback on initial experience'
+      ]
+    },
+    {
+      id: 3,
+      name: 'High-Engagement/Recent High-Value',
+      count: 250,
+      percentage: 20,
+      avgRevenue: 2100,
+      lastPurchase: '3 days',
+      recommendations: [
+        'Exclusive offers and limited-edition products',
+        'Personalized recommendations based on history',
+        'Proactive support and dedicated assistance',
+        'Gather insights for product development'
+      ]
+    }
+  ],
   recentAnalyses: [
     {
       id: 1,
       customerName: 'Kwame Asante',
       date: '2024-01-15',
-      segment: 'Loyal',
+      segment: 'Loyal/Engaged',
       churnRisk: 'Low',
       revenue: 1250,
-      status: 'completed'
+      status: 'completed',
+      lastPurchase: '7 days ago',
+      recommendations: ['Loyalty program enrollment', 'VIP treatment offer']
     },
     {
       id: 2,
       customerName: 'Akua Mensah',
       date: '2024-01-14',
-      segment: 'At-Risk',
+      segment: 'Dormant/Churned',
       churnRisk: 'High',
-      revenue: 890,
-      status: 'completed'
+      revenue: 45,
+      status: 'completed',
+      lastPurchase: '95 days ago',
+      recommendations: ['Re-engagement campaign', 'Win-back incentive']
     },
     {
       id: 3,
       customerName: 'Kofi Boateng',
       date: '2024-01-13',
-      segment: 'New',
+      segment: 'New/Recent but Inactive',
       churnRisk: 'Medium',
-      revenue: 450,
-      status: 'in_progress'
+      revenue: 180,
+      status: 'in_progress',
+      lastPurchase: '28 days ago',
+      recommendations: ['Onboarding sequence', 'First-purchase discount']
     }
   ],
   weatherData: {
@@ -62,19 +123,19 @@ const mockDashboardData = {
     {
       id: 1,
       type: 'warning' as const,
-      message: 'Akua Mensah - High churn risk detected (21 days inactive)',
+      message: 'Akua Mensah - Dormant customer detected (95 days inactive)',
       timestamp: '2 hours ago'
     },
     {
       id: 2,
       type: 'info' as const,
-      message: 'Segmentation model updated with new customer data',
+      message: 'Customer segmentation model updated with new behavioral data',
       timestamp: '4 hours ago'
     },
     {
       id: 3,
       type: 'success' as const,
-      message: 'Kwame Asante engaged with personalized fertilizer message',
+      message: 'Kwame Asante engaged with loyalty program offer',
       timestamp: '6 hours ago'
     }
   ],
@@ -174,26 +235,16 @@ const Dashboard: React.FC = () => {
         />
       </div>
 
-      {/* Main Content Grid */}
+      {/* Customer Segments */}
       <div style={{ 
         display: 'grid', 
         gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', 
         gap: '1.5rem',
         marginBottom: '2rem'
       }}>
-        <RecentAnalyses analyses={data.recentAnalyses} />
-        <WeatherConditions weatherData={data.weatherData} />
-      </div>
-
-      {/* Bottom Row */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', 
-        gap: '1.5rem' 
-      }}>
+        <CustomerSegments segments={data.customerSegments} />
         <AlertsSection alerts={data.alerts} />
-        <CropRecommendations recommendations={data.productRecommendations} />
-        </div>
+      </div>
       </div>
     </div>
   );
