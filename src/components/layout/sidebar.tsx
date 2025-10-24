@@ -50,6 +50,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCollapseChange }) =>
   const handleAuth = (type: 'login' | 'signup') => {
     console.log(`${type} clicked`);
     setIsLoggedIn(true);
+    window.location.href = '/dashboard';
   };
 
   const handleLogout = () => {
@@ -57,7 +58,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCollapseChange }) =>
     localStorage.removeItem('userEmail');
     localStorage.removeItem('userName');
     setIsLoggedIn(false);
-    window.location.href = '/signin';
+    window.location.href = '/dashboard';
   };
 
   // Handle click outside to close dropdown

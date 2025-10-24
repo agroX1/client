@@ -27,12 +27,11 @@ function App() {
         paddingBottom: isAuthPage ? '0' : '1.5rem' 
       }}>
         <Routes>
-          <Route path="/" element={<Navigate to="/signin" replace />} />
-          <Route path="/signin" element={<SignIn />} />
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/multispectral" element={<MultispectralAnalysis />} />
-          <Route path="*" element={<Navigate to="/signin" replace />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </main>
 
