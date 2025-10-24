@@ -30,7 +30,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('userEmail');
     localStorage.removeItem('userName');
-    window.location.href = '/signin';
+    window.location.href = '/dashboard';
   };
 
   return (
@@ -41,95 +41,109 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '0.5rem',
-          padding: '0.5rem 0.75rem',
-          backgroundColor: 'var(--bg-primary)',
-          border: '1px solid var(--border-color)',
+          gap: '0.75rem',
+          padding: '0.75rem',
+          backgroundColor: isOpen ? '#2a2b32' : 'transparent',
+          border: 'none',
           borderRadius: '0.5rem',
           cursor: 'pointer',
-          transition: 'all 0.2s ease',
-          color: 'var(--text-primary)'
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = 'var(--bg-secondary)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = 'var(--bg-primary)';
+          transition: 'all 0.15s ease',
+          width: '100%',
+          justifyContent: 'flex-start'
         }}
       >
         <div style={{
           width: '32px',
           height: '32px',
-          backgroundColor: 'var(--accent-green)',
+          backgroundColor: '#10a37f',
           borderRadius: '50%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           color: 'white',
           fontSize: '0.875rem',
-          fontWeight: '600'
+          fontWeight: '600',
+          flexShrink: 0
         }}>
           {userName.charAt(0).toUpperCase()}
         </div>
-        <div style={{ textAlign: 'left' }}>
+        <div style={{ 
+          flex: 1, 
+          minWidth: 0,
+          textAlign: 'left'
+        }}>
           <div style={{
             fontSize: '0.875rem',
             fontWeight: '500',
-            color: 'var(--text-primary)',
-            lineHeight: 1.2
+            color: '#ffffff',
+            marginBottom: '0.125rem',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
           }}>
             {userName}
           </div>
           <div style={{
             fontSize: '0.75rem',
-            color: 'var(--text-secondary)',
-            lineHeight: 1.2
+            color: '#c5c5d2',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
           }}>
             {userEmail}
           </div>
         </div>
-        <ChevronDown 
-          size={16} 
-          style={{ 
-            color: 'var(--text-tertiary)',
-            transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-            transition: 'transform 0.2s ease'
-          }} 
-        />
+        <div style={{
+          width: '20px',
+          height: '20px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0
+        }}>
+          <ChevronDown 
+            size={16} 
+            style={{ 
+              color: '#c5c5d2',
+              transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+              transition: 'transform 0.2s ease'
+            }} 
+          />
+        </div>
       </button>
 
       {/* Dropdown Menu */}
       {isOpen && (
         <div style={{
           position: 'absolute',
-          top: '100%',
-          right: 0,
-          marginTop: '0.5rem',
-          backgroundColor: 'var(--bg-primary)',
-          border: '1px solid var(--border-color)',
+          bottom: '100%',
+          left: '0.75rem',
+          right: '0.75rem',
+          marginBottom: '0.5rem',
+          backgroundColor: '#2a2b32',
+          border: '1px solid #4d4d4f',
           borderRadius: '0.5rem',
-          boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+          boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3)',
           zIndex: 1000,
-          minWidth: '200px',
           overflow: 'hidden'
         }}>
           {/* User Info */}
           <div style={{
             padding: '1rem',
-            borderBottom: '1px solid var(--border-color)',
-            backgroundColor: 'var(--bg-secondary)'
+            borderBottom: '1px solid #4d4d4f',
+            backgroundColor: '#343541'
           }}>
             <div style={{
               fontSize: '0.875rem',
               fontWeight: '600',
-              color: 'var(--text-primary)',
+              color: '#ffffff',
               marginBottom: '0.25rem'
             }}>
               {userName}
             </div>
             <div style={{
               fontSize: '0.75rem',
-              color: 'var(--text-secondary)'
+              color: '#c5c5d2'
             }}>
               {userEmail}
             </div>
@@ -150,13 +164,13 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
                 padding: '0.75rem 1rem',
                 backgroundColor: 'transparent',
                 border: 'none',
-                color: 'var(--text-primary)',
+                color: '#c5c5d2',
                 cursor: 'pointer',
                 fontSize: '0.875rem',
                 transition: 'background-color 0.2s ease'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'var(--bg-secondary)';
+                e.currentTarget.style.backgroundColor = '#40414f';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = 'transparent';
@@ -179,13 +193,13 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
                 padding: '0.75rem 1rem',
                 backgroundColor: 'transparent',
                 border: 'none',
-                color: 'var(--accent-red)',
+                color: '#ef4444',
                 cursor: 'pointer',
                 fontSize: '0.875rem',
                 transition: 'background-color 0.2s ease'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'var(--bg-secondary)';
+                e.currentTarget.style.backgroundColor = '#40414f';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = 'transparent';
