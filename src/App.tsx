@@ -4,7 +4,7 @@ import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
 import MultispectralAnalysis from './pages/MultispectralAnalysis';
 import Dashboard from './pages/dashboard';
-import { SignIn, SignUp } from './components/account';
+import { SignUp } from './components/account';
 
 // Import styles
 import './App.css';

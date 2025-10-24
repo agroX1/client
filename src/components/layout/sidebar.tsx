@@ -1,15 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   BarChart3, 
   Satellite, 
   Home,
-  Map,
-  Activity,
-  Settings,
-  Bell,
-  LogOut,
-  ChevronDown,
   Menu
 } from 'lucide-react';
 import { ProfileDropdown } from './profile';
@@ -42,22 +36,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCollapseChange }) =>
     { id: 'analytics', label: 'Analytics', icon: BarChart3, path: '/dashboard/analytics' },
     { id: 'multispectral', label: 'Multispectral', icon: Satellite, path: '/multispectral' },
   ];
-
   
 
-  const handleAuth = (type: 'login' | 'signup') => {
-    console.log(`${type} clicked`);
-    setIsLoggedIn(true);
-    window.location.href = '/dashboard';
-  };
 
-  const handleLogout = () => {
-    localStorage.removeItem('isAuthenticated');
-    localStorage.removeItem('userEmail');
-    localStorage.removeItem('userName');
-    setIsLoggedIn(false);
-    window.location.href = '/dashboard';
-  };
 
 
   const sidebarStyle: React.CSSProperties = {
@@ -219,16 +200,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCollapseChange }) =>
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                width: '32px',
-                height: '32px',
+                  width: '32px',
+                  height: '32px',
                 backgroundColor: '#10a37f',
-                borderRadius: '50%',
-                color: 'white',
-                fontSize: '0.875rem',
+                  borderRadius: '50%',
+                  color: 'white',
+                  fontSize: '0.875rem',
                 fontWeight: '600',
                 margin: '0 auto'
-              }}>
-                {userName.charAt(0).toUpperCase()}
+                }}>
+                  {userName.charAt(0).toUpperCase()}
               </div>
             )
           )}
