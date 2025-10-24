@@ -6,7 +6,7 @@ export const useFarmBoundaries = () => {
   const [drawnPolygons, setDrawnPolygons] = useState<LatLng[][]>([]);
   const [currentDrawingPoints, setCurrentDrawingPoints] = useState<LatLng[]>([]);
 
-  const addFarmBoundary = useCallback((coordinates: LatLng[], area: number) => {
+  const addFarmBoundary = useCallback((coordinates: LatLng[]) => {
     setDrawnPolygons(prev => [...prev, coordinates]);
     setFarmBoundaries(prev => [...prev, coordinates]);
     setCurrentDrawingPoints([]);

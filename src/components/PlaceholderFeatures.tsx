@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart3, Cloud, DollarSign, FileText } from 'lucide-react';
+import { Cloud, DollarSign, FileText } from 'lucide-react';
 
 interface PlaceholderFeatureProps {
   title: string;

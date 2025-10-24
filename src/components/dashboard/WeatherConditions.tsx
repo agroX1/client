@@ -33,23 +33,25 @@ export const WeatherConditions: React.FC<WeatherConditionsProps> = ({ weatherDat
       </div>
       <div style={{ 
         display: 'grid', 
-        gridTemplateColumns: 'repeat(2, 1fr)', 
-        gap: '1rem' 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', 
+        gap: '0.75rem' 
       }}>
         <div style={{ 
           display: 'flex', 
           alignItems: 'center', 
-          gap: '0.75rem',
-          padding: '1rem',
+          gap: '0.5rem',
+          padding: '0.75rem',
           backgroundColor: 'var(--bg-secondary)',
-          borderRadius: '0.5rem'
+          borderRadius: '0.5rem',
+          flexDirection: 'column',
+          textAlign: 'center'
         }}>
-          <Thermometer size={20} style={{ color: 'var(--accent-red)' }} />
+          <Thermometer size={18} style={{ color: 'var(--accent-red)' }} />
           <div>
-            <div style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--text-primary)' }}>
+            <div style={{ fontSize: '1rem', fontWeight: '600', color: 'var(--text-primary)' }}>
               {weatherData.temperature}°C
             </div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+            <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
               Temperature
             </div>
           </div>
@@ -57,17 +59,19 @@ export const WeatherConditions: React.FC<WeatherConditionsProps> = ({ weatherDat
         <div style={{ 
           display: 'flex', 
           alignItems: 'center', 
-          gap: '0.75rem',
-          padding: '1rem',
+          gap: '0.5rem',
+          padding: '0.75rem',
           backgroundColor: 'var(--bg-secondary)',
-          borderRadius: '0.5rem'
+          borderRadius: '0.5rem',
+          flexDirection: 'column',
+          textAlign: 'center'
         }}>
-          <Droplets size={20} style={{ color: '#3B82F6' }} />
+          <Droplets size={18} style={{ color: '#3B82F6' }} />
           <div>
-            <div style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--text-primary)' }}>
+            <div style={{ fontSize: '1rem', fontWeight: '600', color: 'var(--text-primary)' }}>
               {weatherData.humidity}%
             </div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+            <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
               Humidity
             </div>
           </div>
@@ -75,17 +79,19 @@ export const WeatherConditions: React.FC<WeatherConditionsProps> = ({ weatherDat
         <div style={{ 
           display: 'flex', 
           alignItems: 'center', 
-          gap: '0.75rem',
-          padding: '1rem',
+          gap: '0.5rem',
+          padding: '0.75rem',
           backgroundColor: 'var(--bg-secondary)',
-          borderRadius: '0.5rem'
+          borderRadius: '0.5rem',
+          flexDirection: 'column',
+          textAlign: 'center'
         }}>
-          <Droplets size={20} style={{ color: '#3B82F6' }} />
+          <Droplets size={18} style={{ color: '#3B82F6' }} />
           <div>
-            <div style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--text-primary)' }}>
+            <div style={{ fontSize: '1rem', fontWeight: '600', color: 'var(--text-primary)' }}>
               {weatherData.rainfall}mm
             </div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+            <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
               Rainfall
             </div>
           </div>
@@ -93,17 +99,19 @@ export const WeatherConditions: React.FC<WeatherConditionsProps> = ({ weatherDat
         <div style={{ 
           display: 'flex', 
           alignItems: 'center', 
-          gap: '0.75rem',
-          padding: '1rem',
+          gap: '0.5rem',
+          padding: '0.75rem',
           backgroundColor: 'var(--bg-secondary)',
-          borderRadius: '0.5rem'
+          borderRadius: '0.5rem',
+          flexDirection: 'column',
+          textAlign: 'center'
         }}>
-          <Activity size={20} style={{ color: 'var(--text-secondary)' }} />
+          <Activity size={18} style={{ color: 'var(--text-secondary)' }} />
           <div>
-            <div style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--text-primary)' }}>
+            <div style={{ fontSize: '1rem', fontWeight: '600', color: 'var(--text-primary)' }}>
               {weatherData.windSpeed} km/h
             </div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+            <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
               Wind Speed
             </div>
           </div>

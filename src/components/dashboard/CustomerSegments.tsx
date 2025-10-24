@@ -1,6 +1,4 @@
 import React from 'react';
-import { Card } from '../ui/Card';
-import { Badge } from '../ui/Badge';
 import { Users, TrendingUp, Clock, DollarSign } from 'lucide-react';
 
 interface CustomerSegment {
@@ -20,72 +18,188 @@ interface CustomerSegmentsProps {
 export const CustomerSegments: React.FC<CustomerSegmentsProps> = ({ segments }) => {
   const getSegmentColor = (segmentId: number) => {
     switch (segmentId) {
-      case 0: return 'bg-red-100 text-red-800'; // Dormant/Churned
-      case 1: return 'bg-green-100 text-green-800'; // Loyal/Engaged
-      case 2: return 'bg-yellow-100 text-yellow-800'; // New/Recent but Inactive
-      case 3: return 'bg-blue-100 text-blue-800'; // High-Engagement/Recent High-Value
-      default: return 'bg-gray-100 text-gray-800';
+      case 0: return 'var(--accent-red)'; // Dormant/Churned
+      case 1: return 'var(--accent-green)'; // Loyal/Engaged
+      case 2: return '#F59E0B'; // New/Recent but Inactive
+      case 3: return '#3B82F6'; // High-Engagement/Recent High-Value
+      default: return 'var(--text-secondary)';
     }
   };
 
   const getSegmentIcon = (segmentId: number) => {
     switch (segmentId) {
-      case 0: return <Clock size={20} className="text-red-600" />;
-      case 1: return <Users size={20} className="text-green-600" />;
-      case 2: return <TrendingUp size={20} className="text-yellow-600" />;
-      case 3: return <DollarSign size={20} className="text-blue-600" />;
-      default: return <Users size={20} />;
+      case 0: return Clock;
+      case 1: return Users;
+      case 2: return TrendingUp;
+      case 3: return DollarSign;
+      default: return Users;
     }
   };
 
   return (
-    <Card className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-gray-900">Customer Segments</h3>
-        <Badge>{segments.length} Segments</Badge>
+    <div style={{ 
+      backgroundColor: 'var(--bg-primary)', 
+      borderRadius: '0.75rem', 
+      padding: '1.5rem',
+      border: '1px solid var(--border-color)'
+    }}>
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'space-between', 
+        marginBottom: '1.5rem' 
+      }}>
+        <h3 style={{ 
+          fontSize: '1.125rem', 
+          fontWeight: '600', 
+          color: 'var(--text-primary)' 
+        }}>
+          Customer Segments
+        </h3>
+        <div style={{ 
+          backgroundColor: 'var(--accent-blue)', 
+          color: 'white', 
+          padding: '0.25rem 0.75rem', 
+          borderRadius: '0.375rem',
+          fontSize: '0.75rem',
+          fontWeight: '500'
+        }}>
+          {segments.length} Segments
+        </div>
       </div>
       
-      <div className="space-y-4">
-        {segments.map((segment) => (
-          <div key={segment.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-3">
-                {getSegmentIcon(segment.id)}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        {segments.map((segment) => {
+          const Icon = getSegmentIcon(segment.id);
+          const color = getSegmentColor(segment.id);
+          
+          return (
+            <div key={segment.id} style={{ 
+              display: 'flex', 
+              alignItems: 'flex-start', 
+              gap: '0.75rem', 
+              padding: '0.75rem',
+              backgroundColor: 'var(--bg-secondary)',
+              borderRadius: '0.5rem',
+              border: `1px solid ${color}20`
+            }}>
+              <div style={{ 
+                padding: '0.25rem', 
+                backgroundColor: `${color}20`, 
+                borderRadius: '0.25rem',
+                color: color,
+                flexShrink: 0
+              }}>
+                <Icon size={16} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'space-between', 
+                  marginBottom: '0.5rem' 
+                }}>
+                  <div>
+                    <h4 style={{ 
+                      fontSize: '0.875rem', 
+                      fontWeight: '500', 
+                      color: 'var(--text-primary)', 
+                      marginBottom: '0.125rem',
+                      lineHeight: 1.4
+                    }}>
+                      {segment.name}
+                    </h4>
+                    <p style={{ 
+                      fontSize: '0.75rem', 
+                      color: 'var(--text-secondary)' 
+                    }}>
+                      {segment.count} customers ({segment.percentage}%)
+                    </p>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <p style={{ 
+                      fontSize: '0.875rem', 
+                      fontWeight: '500', 
+                      color: 'var(--text-primary)' 
+                    }}>
+                      ₵{segment.avgRevenue}
+                    </p>
+                    <p style={{ 
+                      fontSize: '0.625rem', 
+                      color: 'var(--text-tertiary)' 
+                    }}>
+                      Avg Revenue
+                    </p>
+                  </div>
+                </div>
+                
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'space-between', 
+                  marginBottom: '0.5rem' 
+                }}>
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '0.5rem' 
+                  }}>
+                    <Clock size={12} style={{ color: 'var(--text-tertiary)' }} />
+                    <span style={{ 
+                      fontSize: '0.75rem', 
+                      color: 'var(--text-secondary)' 
+                    }}>
+                      Last Purchase: {segment.lastPurchase}
+                    </span>
+                  </div>
+                  <div style={{ 
+                    backgroundColor: `${color}20`, 
+                    color: color, 
+                    padding: '0.125rem 0.5rem', 
+                    borderRadius: '0.25rem',
+                    fontSize: '0.625rem',
+                    fontWeight: '500'
+                  }}>
+                    Cluster {segment.id}
+                  </div>
+                </div>
+                
                 <div>
-                  <h4 className="font-medium text-gray-900">{segment.name}</h4>
-                  <p className="text-sm text-gray-500">{segment.count} customers ({segment.percentage}%)</p>
+                  <h5 style={{ 
+                    fontSize: '0.75rem', 
+                    fontWeight: '500', 
+                    color: 'var(--text-primary)', 
+                    marginBottom: '0.375rem' 
+                  }}>
+                    Recommended Actions:
+                  </h5>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                    {segment.recommendations.map((recommendation, index) => (
+                      <div key={index} style={{ 
+                        fontSize: '0.75rem', 
+                        color: 'var(--text-secondary)', 
+                        display: 'flex', 
+                        alignItems: 'flex-start', 
+                        gap: '0.5rem',
+                        lineHeight: 1.4
+                      }}>
+                        <span style={{ 
+                          color: 'var(--accent-green)', 
+                          marginTop: '0.125rem',
+                          flexShrink: 0
+                        }}>
+                          •
+                        </span>
+                        {recommendation}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
-              <div className="text-right">
-                <p className="text-sm font-medium text-gray-900">₵{segment.avgRevenue}</p>
-                <p className="text-xs text-gray-500">Avg Revenue</p>
-              </div>
             </div>
-            
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <Clock size={16} className="text-gray-400" />
-                <span className="text-sm text-gray-600">Last Purchase: {segment.lastPurchase}</span>
-              </div>
-              <Badge className={getSegmentColor(segment.id)}>
-                Cluster {segment.id}
-              </Badge>
-            </div>
-            
-            <div className="mt-3">
-              <h5 className="text-sm font-medium text-gray-700 mb-2">Recommended Actions:</h5>
-              <ul className="space-y-1">
-                {segment.recommendations.map((recommendation, index) => (
-                  <li key={index} className="text-sm text-gray-600 flex items-start gap-2">
-                    <span className="text-green-500 mt-1">•</span>
-                    {recommendation}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
-    </Card>
+    </div>
   );
 };

@@ -26,7 +26,6 @@ L.Icon.Default.mergeOptions({
 
 export const Map: React.FC<MapProps> = ({
   onPolygonComplete,
-  onReset,
   farmBoundaries = [],
   analysisResults,
   isDrawing = false,

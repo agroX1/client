@@ -13,7 +13,7 @@ export { AnalysisOverlay } from './map/AnalysisOverlay';
 
 // Export all layout components
 export { Header } from './layout/Header';
-export { Sidebar } from './layout/Sidebar';
+export { Sidebar } from './layout/sidebar';
 
 // Export all sidebar components
 export { FarmSummary } from './sidebar/chat';

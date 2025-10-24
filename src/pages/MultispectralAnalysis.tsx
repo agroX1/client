@@ -1,5 +1,4 @@
 import React from 'react';
-import { Satellite } from 'lucide-react';
 import { Map } from '../components/map/Map';
 import CoordinateInput from '../components/CoordinateInput';
 import { FarmSummary, QuickActions } from '../components/sidebar';
@@ -33,8 +32,7 @@ const MultispectralAnalysisPage: React.FC = () => {
 
   // Event handlers
   const handlePolygonComplete = (coordinates: LatLng[]) => {
-    const area = calculatePolygonArea(coordinates);
-    addFarmBoundary(coordinates, area);
+    addFarmBoundary(coordinates);
     setLastDrawnCoordinates(coordinates);
     setIsDrawing(false);
   };
@@ -56,15 +54,13 @@ const MultispectralAnalysisPage: React.FC = () => {
   };
 
   const handleCoordinatesSubmit = (coordinates: LatLng[]) => {
-    const area = calculatePolygonArea(coordinates);
-    addFarmBoundary(coordinates, area);
+    addFarmBoundary(coordinates);
     setLastDrawnCoordinates(coordinates);
     setActiveTab('map');
   };
 
   const handleFileUpload = (coordinates: LatLng[]) => {
-    const area = calculatePolygonArea(coordinates);
-    addFarmBoundary(coordinates, area);
+    addFarmBoundary(coordinates);
     setLastDrawnCoordinates(coordinates);
     setActiveTab('map');
   };

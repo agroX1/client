@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   BarChart3, 
   Satellite, 
-  User, 
-  X, 
   Home,
   Map,
   Activity,
   Settings,
   Bell,
+  LogOut,
+  ChevronDown,
   Menu
 } from 'lucide-react';
 
@@ -20,9 +20,15 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onCollapseChange }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(true); // Mock authentication state
+  const [isLoggedIn, setIsLoggedIn] = useState(() => localStorage.getItem('isAuthenticated') === 'true');
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const location = useLocation();
+  const profileRef = useRef<HTMLDivElement>(null);
+  
+  // Get user info from localStorage
+  const userName = localStorage.getItem('userName') || 'User';
+  const userEmail = localStorage.getItem('userEmail') || 'user@example.com';
 
   const handleCollapseToggle = () => {
     const newCollapsed = !isCollapsed;
@@ -39,7 +45,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onCollapseCh
   ];
 
   const secondaryItems = [
-    { id: 'alerts', label: 'Alerts', icon: Bell, path: '/dashboard/alerts' },
+    { id: 'notifications', label: 'Alerts', icon: Bell, path: '/dashboard/alerts' },
     { id: 'settings', label: 'Settings', icon: Settings, path: '/dashboard/settings' },
   ];  
 
@@ -47,6 +53,28 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onCollapseCh
     console.log(`${type} clicked`);
     setIsLoggedIn(true);
   };
+
+  const handleLogout = () => {
+    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('userName');
+    setIsLoggedIn(false);
+    window.location.href = '/signin';
+  };
+
+  // Handle click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setIsProfileDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const sidebarStyle: React.CSSProperties = {
     position: 'fixed',
@@ -63,17 +91,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onCollapseCh
     padding: '0.5rem 0',
     overflow: 'hidden',
     boxShadow: '2px 0 8px rgba(0, 0, 0, 0.1)',
-  };
-
-  const overlayStyle: React.CSSProperties = {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'transparent',
-    zIndex: 998,
-    display: isOpen ? 'block' : 'none',
   };
 
   return (
@@ -263,73 +280,181 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onCollapseCh
         {/* Profile Section */}
         <div style={{ 
           padding: '0.75rem',
-          marginTop: 'auto'
-        }}>
+          marginTop: 'auto',
+          position: 'relative'
+        }} ref={profileRef}>
           {isLoggedIn ? (
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.75rem',
-              padding: '0.75rem',
-              backgroundColor: 'transparent',
-              borderRadius: '0.5rem',
-              cursor: 'pointer',
-              transition: 'all 0.15s ease'
-            }}
-            onClick={() => setIsLoggedIn(false)}
-            >
+            <>
               <div style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '50%',
-                backgroundColor: '#10a37f',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                fontSize: '0.875rem',
-                fontWeight: '600'
-              }}>
-                JF
-              </div>
-              {!isCollapsed && (
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ 
-                    fontSize: '0.875rem', 
-                    fontWeight: '500', 
-                    color: '#ffffff',
-                    marginBottom: '0.125rem',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis'
-                  }}>
-                    John Farmer
-                  </div>
-                  <div style={{ 
-                    fontSize: '0.75rem', 
-                    color: '#c5c5d2',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis'
-                  }}>
-                    Farm Manager
-                  </div>
-                </div>
-              )}
-              {!isCollapsed && (
+                gap: '0.75rem',
+                padding: '0.75rem',
+                backgroundColor: isProfileDropdownOpen ? '#2a2b32' : 'transparent',
+                borderRadius: '0.5rem',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease'
+              }}
+              onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+              >
                 <div style={{
-                  width: '20px',
-                  height: '20px',
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  backgroundColor: '#10a37f',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontSize: '0.875rem',
+                  fontWeight: '600'
                 }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M6 9l6 6 6-6"/>
-                  </svg>
+                  {userName.charAt(0).toUpperCase()}
+                </div>
+                {!isCollapsed && (
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ 
+                      fontSize: '0.875rem', 
+                      fontWeight: '500', 
+                      color: '#ffffff',
+                      marginBottom: '0.125rem',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}>
+                      {userName}
+                    </div>
+                    <div style={{ 
+                      fontSize: '0.75rem', 
+                      color: '#c5c5d2',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}>
+                      {userEmail}
+                    </div>
+                  </div>
+                )}
+                {!isCollapsed && (
+                  <div style={{
+                    width: '20px',
+                    height: '20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <ChevronDown 
+                      size={16} 
+                      style={{ 
+                        color: '#c5c5d2',
+                        transform: isProfileDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.2s ease'
+                      }} 
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Dropdown Menu */}
+              {isProfileDropdownOpen && !isCollapsed && (
+                <div style={{
+                  position: 'absolute',
+                  bottom: '100%',
+                  left: '0.75rem',
+                  right: '0.75rem',
+                  marginBottom: '0.5rem',
+                  backgroundColor: '#2a2b32',
+                  border: '1px solid #4d4d4f',
+                  borderRadius: '0.5rem',
+                  boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3)',
+                  zIndex: 1000,
+                  overflow: 'hidden'
+                }}>
+                  {/* User Info */}
+                  <div style={{
+                    padding: '1rem',
+                    borderBottom: '1px solid #4d4d4f',
+                    backgroundColor: '#343541'
+                  }}>
+                    <div style={{
+                      fontSize: '0.875rem',
+                      fontWeight: '600',
+                      color: '#ffffff',
+                      marginBottom: '0.25rem'
+                    }}>
+                      {userName}
+                    </div>
+                    <div style={{
+                      fontSize: '0.75rem',
+                      color: '#c5c5d2'
+                    }}>
+                      {userEmail}
+                    </div>
+                  </div>
+
+                  {/* Menu Items */}
+                  <div style={{ padding: '0.5rem 0' }}>
+                    <button
+                      onClick={() => {
+                        setIsProfileDropdownOpen(false);
+                        // Navigate to settings
+                      }}
+                      style={{
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.75rem',
+                        padding: '0.75rem 1rem',
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        color: '#c5c5d2',
+                        cursor: 'pointer',
+                        fontSize: '0.875rem',
+                        transition: 'background-color 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#40414f';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }}
+                    >
+                      <Settings size={16} />
+                      Settings
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setIsProfileDropdownOpen(false);
+                        handleLogout();
+                      }}
+                      style={{
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.75rem',
+                        padding: '0.75rem 1rem',
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        color: '#ef4444',
+                        cursor: 'pointer',
+                        fontSize: '0.875rem',
+                        transition: 'background-color 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#40414f';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }}
+                    >
+                      <LogOut size={16} />
+                      Logout
+                    </button>
+                  </div>
                 </div>
               )}
-            </div>
+            </>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               <button

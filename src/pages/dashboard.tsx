@@ -8,109 +8,47 @@ import {
 } from 'lucide-react';
 import { 
   MetricCard, 
-  AlertsSection, 
-  CustomerSegments
+  WeatherConditions,
+  CropRecommendations,
+  RecentAnalyses
 } from '../components/dashboard';
-import { Sidebar } from '../components/layout/Sidebar';
+import { Sidebar } from '../components/layout/sidebar';
 
-// Mock data for Afrimash Insight Engine dashboard
+// Mock data for AgroX Agricultural Dashboard
 const mockDashboardData = {
   farmMetrics: {
-    totalCustomers: 1250,
-    activeSegments: 4,
-    totalRevenue: 245600,
-    retentionRate: 70
+    totalFarms: 1250,
+    activeAnalyses: 4,
+    totalArea: 2456,
+    avgYield: 70
   },
-  customerSegments: [
-    {
-      id: 0,
-      name: 'Dormant/Churned',
-      count: 312,
-      percentage: 25,
-      avgRevenue: 45,
-      lastPurchase: '90+ days',
-      recommendations: [
-        'Re-engagement campaigns with special offers',
-        'Win-back strategies with significant incentives',
-        'Gather feedback via surveys'
-      ]
-    },
-    {
-      id: 1,
-      name: 'Loyal/Engaged',
-      count: 438,
-      percentage: 35,
-      avgRevenue: 1250,
-      lastPurchase: '7 days',
-      recommendations: [
-        'Loyalty programs with points and exclusive discounts',
-        'VIP treatment with personalized communication',
-        'Upselling and cross-selling opportunities',
-        'Encourage reviews and referrals'
-      ]
-    },
-    {
-      id: 2,
-      name: 'New/Recent but Inactive',
-      count: 250,
-      percentage: 20,
-      avgRevenue: 180,
-      lastPurchase: '30 days',
-      recommendations: [
-        'Onboarding campaigns with platform guidance',
-        'Nurturing sequences with product recommendations',
-        'First-purchase incentives and discounts',
-        'Gather feedback on initial experience'
-      ]
-    },
-    {
-      id: 3,
-      name: 'High-Engagement/Recent High-Value',
-      count: 250,
-      percentage: 20,
-      avgRevenue: 2100,
-      lastPurchase: '3 days',
-      recommendations: [
-        'Exclusive offers and limited-edition products',
-        'Personalized recommendations based on history',
-        'Proactive support and dedicated assistance',
-        'Gather insights for product development'
-      ]
-    }
-  ],
   recentAnalyses: [
     {
       id: 1,
-      customerName: 'Kwame Asante',
+      farmName: 'Asante Cocoa Farm',
       date: '2024-01-15',
-      segment: 'Loyal/Engaged',
-      churnRisk: 'Low',
-      revenue: 1250,
-      status: 'completed',
-      lastPurchase: '7 days ago',
-      recommendations: ['Loyalty program enrollment', 'VIP treatment offer']
+      ndvi: 0.78,
+      health: 'Excellent',
+      area: 12.5,
+      status: 'completed'
     },
     {
       id: 2,
-      customerName: 'Akua Mensah',
+      farmName: 'Mensah Maize Fields',
       date: '2024-01-14',
-      segment: 'Dormant/Churned',
-      churnRisk: 'High',
-      revenue: 45,
-      status: 'completed',
-      lastPurchase: '95 days ago',
-      recommendations: ['Re-engagement campaign', 'Win-back incentive']
+      ndvi: 0.65,
+      health: 'Good',
+      area: 8.2,
+      status: 'completed'
     },
     {
       id: 3,
-      customerName: 'Kofi Boateng',
+      farmName: 'Boateng Rice Plantation',
       date: '2024-01-13',
-      segment: 'New/Recent but Inactive',
-      churnRisk: 'Medium',
-      revenue: 180,
-      status: 'in_progress',
-      lastPurchase: '28 days ago',
-      recommendations: ['Onboarding sequence', 'First-purchase discount']
+      ndvi: 0.45,
+      health: 'Fair',
+      area: 15.8,
+      status: 'in_progress'
     }
   ],
   weatherData: {
@@ -119,46 +57,45 @@ const mockDashboardData = {
     rainfall: 15.2,
     windSpeed: 6.8
   },
-  alerts: [
-    {
-      id: 1,
-      type: 'warning' as const,
-      message: 'Akua Mensah - Dormant customer detected (95 days inactive)',
-      timestamp: '2 hours ago'
-    },
-    {
-      id: 2,
-      type: 'info' as const,
-      message: 'Customer segmentation model updated with new behavioral data',
-      timestamp: '4 hours ago'
-    },
-    {
-      id: 3,
-      type: 'success' as const,
-      message: 'Kwame Asante engaged with loyalty program offer',
-      timestamp: '6 hours ago'
-    }
-  ],
-  productRecommendations: [
-    { product: 'Cocoa Fertilizer', suitability: 92, reason: 'High engagement in Ashanti region' },
-    { product: 'Maize Seeds', suitability: 87, reason: 'Seasonal demand increase' },
-    { product: 'Pesticides', suitability: 78, reason: 'Weather pattern analysis' }
+  cropRecommendations: [
+    { crop: 'Cocoa', suitability: 92, reason: 'Optimal soil conditions and rainfall pattern' },
+    { crop: 'Maize', suitability: 87, reason: 'Seasonal timing and temperature range' },
+    { crop: 'Rice', suitability: 78, reason: 'Water availability and soil type match' }
   ]
 };
 
 const Dashboard: React.FC = () => {
   const [data] = useState(mockDashboardData);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Start closed on mobile
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  // Get user info from localStorage
+  const userName = localStorage.getItem('userName') || 'User';
+  const userEmail = localStorage.getItem('userEmail') || 'user@example.com';
 
   useEffect(() => {
+    // Check if mobile
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+      if (window.innerWidth >= 768) {
+        setIsSidebarOpen(true); // Auto-open on desktop
+      }
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
     // Simulate data loading
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1000);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', checkMobile);
+    };
   }, []);
 
   if (isLoading) {
@@ -194,56 +131,121 @@ const Dashboard: React.FC = () => {
       {/* Main Content */}
       <div style={{ 
         flex: 1, 
-        marginLeft: isSidebarOpen ? (isSidebarCollapsed ? '60px' : '240px') : '0',
+        marginLeft: isMobile ? '0' : (isSidebarOpen ? (isSidebarCollapsed ? '60px' : '240px') : '0'),
         transition: 'margin-left 0.3s ease',
-        padding: '2rem'
+        padding: isMobile ? '1rem' : '2rem',
+        paddingTop: isMobile ? '4rem' : '2rem' // Space for mobile menu button
       }}>
+        {/* Mobile Menu Button */}
+        {isMobile && (
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            style={{
+              position: 'fixed',
+              top: '1rem',
+              left: '1rem',
+              zIndex: 1001,
+              backgroundColor: 'var(--bg-primary)',
+              border: '1px solid var(--border-color)',
+              borderRadius: '0.5rem',
+              padding: '0.5rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+            }}
+          >
+            <Menu size={20} color="var(--text-primary)" />
+          </button>
+        )}
+
+        {/* Dashboard Header */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: isMobile ? 'flex-start' : 'center',
+          marginBottom: isMobile ? '1.5rem' : '2rem',
+          paddingBottom: '1rem',
+          borderBottom: '1px solid var(--border-color)',
+          flexDirection: isMobile ? 'column' : 'row',
+          gap: isMobile ? '0.5rem' : '0'
+        }}>
+          <div>
+            <h1 style={{
+              fontSize: isMobile ? '1.5rem' : '1.75rem',
+              fontWeight: '700',
+              color: 'var(--text-primary)',
+              margin: 0,
+              marginBottom: '0.25rem'
+            }}>
+              Dashboard
+            </h1>
+            <p style={{
+              fontSize: isMobile ? '0.8rem' : '0.875rem',
+              color: 'var(--text-secondary)',
+              margin: 0
+            }}>
+              Welcome back, {userName.split(' ')[0]}! Here's your farm overview.
+            </p>
+          </div>
+        </div>
 
       {/* Key Metrics Grid */}
-      <div className="metrics-grid">
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
+        gap: isMobile ? '1rem' : '1.5rem',
+        marginBottom: isMobile ? '1.5rem' : '2rem'
+      }}>
         <MetricCard
-          title="Total Customers"
-          value={data.farmMetrics.totalCustomers}
-          change="+125 this month"
+          title="Total Farms"
+          value={data.farmMetrics.totalFarms}
+          change="+25 this month"
           changeType="positive"
           icon={<Map size={24} />}
-          subtitle="Active customers"
+          subtitle="Registered farms"
         />
         <MetricCard
-          title="Customer Segments"
-          value={data.farmMetrics.activeSegments}
-          change="+1 new segment"
+          title="Active Analyses"
+          value={data.farmMetrics.activeAnalyses}
+          change="+2 new analyses"
           changeType="positive"
           icon={<Activity size={24} />}
-          subtitle="AI-powered segments"
+          subtitle="Ongoing monitoring"
         />
         <MetricCard
-          title="Total Revenue"
-          value={`₵${data.farmMetrics.totalRevenue.toLocaleString()}`}
+          title="Total Area"
+          value={`${data.farmMetrics.totalArea.toLocaleString()} ha`}
           change="+15% this month"
           changeType="positive"
           icon={<BarChart3 size={24} />}
-          subtitle="Customer intelligence"
+          subtitle="Monitored land"
         />
         <MetricCard
-          title="Retention Rate"
-          value={`${data.farmMetrics.retentionRate}%`}
-          change="+25% improvement"
+          title="Avg Yield"
+          value={`${data.farmMetrics.avgYield}%`}
+          change="+8% improvement"
           changeType="positive"
           icon={<TrendingUp size={24} />}
-          subtitle="Customer loyalty"
+          subtitle="Crop productivity"
         />
       </div>
 
-      {/* Customer Segments */}
+      {/* Agricultural Analytics */}
       <div style={{ 
         display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', 
-        gap: '1.5rem',
-        marginBottom: '2rem'
+        gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(400px, 1fr))', 
+        gap: isMobile ? '1rem' : '1.5rem',
+        marginBottom: isMobile ? '1.5rem' : '2rem'
       }}>
-        <CustomerSegments segments={data.customerSegments} />
-        <AlertsSection alerts={data.alerts} />
+        <WeatherConditions weatherData={data.weatherData} />
+        <CropRecommendations recommendations={data.cropRecommendations} />
+      </div>
+
+      {/* Recent Farm Analyses */}
+      <div style={{ marginBottom: isMobile ? '1.5rem' : '2rem' }}>
+        <RecentAnalyses analyses={data.recentAnalyses} />
       </div>
       </div>
     </div>

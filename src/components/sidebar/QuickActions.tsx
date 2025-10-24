@@ -15,7 +15,6 @@ export const QuickActions: React.FC<QuickActionsProps> = ({
   activeTab,
   onTabChange,
   onReset,
-  onRunAnalysis,
   farmBoundaries,
   analysisResults,
 }) => {
