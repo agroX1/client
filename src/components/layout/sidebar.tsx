@@ -15,11 +15,10 @@ import {
 
 interface SidebarProps {
   isOpen: boolean;
-  onToggle: () => void;
   onCollapseChange?: (isCollapsed: boolean) => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onCollapseChange }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCollapseChange }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(() => localStorage.getItem('isAuthenticated') === 'true');
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);

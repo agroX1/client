@@ -1,12 +1,12 @@
 import React from 'react';
-import { Satellite, BarChart3, Leaf, Droplets, Sun } from 'lucide-react';
+import { Satellite } from 'lucide-react';
 
 interface MultispectralAnalysisProps {
   analysisResults?: any;
   children?: React.ReactNode; // Allow passing the farm mapping interface
 }
 
-export const MultispectralAnalysis: React.FC<MultispectralAnalysisProps> = ({ analysisResults, children }) => {
+export const MultispectralAnalysis: React.FC<MultispectralAnalysisProps> = ({ children }) => {
   return (
     <div>
       {/* Page Header */}

@@ -34,7 +34,7 @@ interface DrawingToolProps {
 }
 
 const DrawingTool: React.FC<DrawingToolProps> = ({ onPolygonComplete, isDrawing, setIsDrawing, currentPoints, setCurrentPoints }) => {
-  const map = useMapEvents({
+  useMapEvents({
     click: (e) => {
       if (!isDrawing) return;
       
@@ -98,22 +98,6 @@ const Map: React.FC<MapProps> = ({ onPolygonComplete, onReset, farmBoundaries = 
     }
   }, [onPolygonComplete]);
 
-  const handleReset = () => {
-    setDrawnPolygons([]);
-    setCurrentDrawingPoints([]);
-    setIsDrawing(false);
-    if (onReset) {
-      onReset();
-    }
-  };
-
-  const toggleDrawing = () => {
-    if (drawingState) {
-      // Stop drawing and clear current points
-      setCurrentDrawingPoints([]);
-    }
-    setDrawingState(!drawingState);
-  };
 
   const calculatePolygonArea = (coordinates: LatLng[]): number => {
     if (coordinates.length < 3) return 0;

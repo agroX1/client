@@ -73,7 +73,6 @@ const Dashboard: React.FC = () => {
   
   // Get user info from localStorage
   const userName = localStorage.getItem('userName') || 'User';
-  const userEmail = localStorage.getItem('userEmail') || 'user@example.com';
 
   useEffect(() => {
     // Check if mobile
