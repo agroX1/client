@@ -123,7 +123,6 @@ const Dashboard: React.FC = () => {
       {/* Sidebar */}
       <Sidebar 
         isOpen={isSidebarOpen} 
-        onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
         onCollapseChange={setIsSidebarCollapsed}
       />
       

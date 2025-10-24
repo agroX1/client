@@ -80,7 +80,7 @@ const DrawingTool: React.FC<DrawingToolProps> = ({ onPolygonComplete, isDrawing,
   return null; // This component doesn't render anything visible
 };
 
-const Map: React.FC<MapProps> = ({ onPolygonComplete, onReset, farmBoundaries = [], analysisResults, isDrawing: externalIsDrawing, onToggleDrawing }) => {
+const Map: React.FC<MapProps> = ({ onPolygonComplete, farmBoundaries = [], analysisResults, isDrawing: externalIsDrawing, onToggleDrawing }) => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [drawnPolygons, setDrawnPolygons] = useState<LatLng[][]>([]);
   const [currentDrawingPoints, setCurrentDrawingPoints] = useState<LatLng[]>([]);
