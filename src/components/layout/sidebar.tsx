@@ -14,7 +14,7 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCollapseChange }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+  const [isLoggedIn] = useState(() => {
     const auth = localStorage.getItem('isAuthenticated');
     return auth === 'true' || auth === null; // Default to logged in if no auth state
   });
