@@ -39,14 +39,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCollapseChange }) =>
     { id: 'dashboard', label: 'Dashboard', icon: Home, path: '/dashboard' },
     { id: 'analytics', label: 'Analytics', icon: BarChart3, path: '/dashboard/analytics' },
     { id: 'multispectral', label: 'Multispectral', icon: Satellite, path: '/multispectral' },
-    { id: 'maps', label: 'Farm Maps', icon: Map, path: '/dashboard/maps' },
-    { id: 'activity', label: 'Activity', icon: Activity, path: '/dashboard/activity' },
   ];
 
   const secondaryItems = [
     { id: 'notifications', label: 'Alerts', icon: Bell, path: '/dashboard/alerts' },
     { id: 'settings', label: 'Settings', icon: Settings, path: '/dashboard/settings' },
-  ];  
+  ];
+  
 
   const handleAuth = (type: 'login' | 'signup') => {
     console.log(`${type} clicked`);

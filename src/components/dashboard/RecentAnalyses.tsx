@@ -46,16 +46,18 @@ export const RecentAnalyses: React.FC<RecentAnalysesProps> = ({ analyses }) => {
         {analyses.map((analysis) => (
           <div key={analysis.id} style={{ 
             display: 'flex', 
-            alignItems: 'center', 
+            alignItems: 'flex-start', 
             justifyContent: 'space-between',
-            padding: '1rem',
+            padding: '0.75rem',
             backgroundColor: 'var(--bg-secondary)',
             borderRadius: '0.5rem',
-            border: '1px solid var(--bg-tertiary)'
+            border: '1px solid var(--bg-tertiary)',
+            flexWrap: 'wrap',
+            gap: '0.5rem'
           }}>
-            <div>
+            <div style={{ flex: 1, minWidth: '200px' }}>
               <h4 style={{ 
-                fontSize: '0.875rem', 
+                fontSize: '0.8rem', 
                 fontWeight: '600', 
                 color: 'var(--text-primary)',
                 marginBottom: '0.25rem'
@@ -63,15 +65,16 @@ export const RecentAnalyses: React.FC<RecentAnalysesProps> = ({ analyses }) => {
                 {analysis.farmName}
               </h4>
               <p style={{ 
-                fontSize: '0.75rem', 
-                color: 'var(--text-secondary)' 
+                fontSize: '0.7rem', 
+                color: 'var(--text-secondary)',
+                lineHeight: '1.4'
               }}>
                 {analysis.date} • {analysis.area} ha
               </p>
             </div>
-            <div style={{ textAlign: 'right' }}>
+            <div style={{ textAlign: 'right', flexShrink: 0 }}>
               <div style={{ 
-                fontSize: '0.875rem', 
+                fontSize: '0.8rem', 
                 fontWeight: '600', 
                 color: 'var(--text-primary)',
                 marginBottom: '0.25rem'
@@ -79,7 +82,7 @@ export const RecentAnalyses: React.FC<RecentAnalysesProps> = ({ analyses }) => {
                 NDVI: {analysis.ndvi}
               </div>
               <div style={{ 
-                fontSize: '0.75rem', 
+                fontSize: '0.7rem', 
                 color: analysis.health === 'Excellent' ? 'var(--accent-green)' : 
                        analysis.health === 'Good' ? '#3B82F6' : '#F59E0B',
                 fontWeight: '500'

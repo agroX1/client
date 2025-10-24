@@ -34,16 +34,18 @@ export const CropRecommendations: React.FC<CropRecommendationsProps> = ({ recomm
         {recommendations.map((crop, index) => (
           <div key={index} style={{ 
             display: 'flex', 
-            alignItems: 'center', 
+            alignItems: 'flex-start', 
             justifyContent: 'space-between',
-            padding: '1rem',
+            padding: '0.75rem',
             backgroundColor: 'var(--bg-secondary)',
             borderRadius: '0.5rem',
-            border: '1px solid var(--bg-tertiary)'
+            border: '1px solid var(--bg-tertiary)',
+            flexWrap: 'wrap',
+            gap: '0.5rem'
           }}>
-            <div>
+            <div style={{ flex: 1, minWidth: '200px' }}>
               <h4 style={{ 
-                fontSize: '0.875rem', 
+                fontSize: '0.8rem', 
                 fontWeight: '600', 
                 color: 'var(--text-primary)',
                 marginBottom: '0.25rem'
@@ -51,16 +53,18 @@ export const CropRecommendations: React.FC<CropRecommendationsProps> = ({ recomm
                 {crop.crop}
               </h4>
               <p style={{ 
-                fontSize: '0.75rem', 
-                color: 'var(--text-secondary)' 
+                fontSize: '0.7rem', 
+                color: 'var(--text-secondary)',
+                lineHeight: '1.4'
               }}>
                 {crop.reason}
               </p>
             </div>
             <div style={{ 
-              fontSize: '1.25rem', 
+              fontSize: '1rem', 
               fontWeight: 'bold', 
-              color: 'var(--accent-green)' 
+              color: 'var(--accent-green)',
+              flexShrink: 0
             }}>
               {crop.suitability}%
             </div>

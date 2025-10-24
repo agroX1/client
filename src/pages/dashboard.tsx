@@ -141,7 +141,7 @@ const Dashboard: React.FC = () => {
             style={{
               position: 'fixed',
               top: '1rem',
-              left: '1rem',
+              right: '1rem',
               zIndex: 1001,
               backgroundColor: 'var(--bg-primary)',
               border: '1px solid var(--border-color)',
@@ -151,11 +151,29 @@ const Dashboard: React.FC = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+              width: '44px',
+              height: '44px'
             }}
           >
             <Menu size={20} color="var(--text-primary)" />
           </button>
+        )}
+
+        {/* Mobile Overlay */}
+        {isMobile && isSidebarOpen && (
+          <div
+            onClick={() => setIsSidebarOpen(false)}
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              zIndex: 999
+            }}
+          />
         )}
 
         {/* Dashboard Header */}
@@ -193,7 +211,7 @@ const Dashboard: React.FC = () => {
       <div style={{
         display: 'grid',
         gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
-        gap: isMobile ? '1rem' : '1.5rem',
+        gap: isMobile ? '0.75rem' : '1.5rem',
         marginBottom: isMobile ? '1.5rem' : '2rem'
       }}>
         <MetricCard
@@ -233,7 +251,7 @@ const Dashboard: React.FC = () => {
       {/* Agricultural Analytics */}
       <div style={{ 
         display: 'grid', 
-        gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(400px, 1fr))', 
+        gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(350px, 1fr))', 
         gap: isMobile ? '1rem' : '1.5rem',
         marginBottom: isMobile ? '1.5rem' : '2rem'
       }}>
