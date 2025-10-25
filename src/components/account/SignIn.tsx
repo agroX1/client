@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
+import { login } from '../../services/api';
 
 export const SignIn: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -27,19 +28,22 @@ export const SignIn: React.FC = () => {
     setError('');
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Call actual API
+      const response = await login(formData.email, formData.password);
       
-      // Mock authentication - replace with actual API call
-      if (formData.email && formData.password) {
+      if (response.success && response.data.token) {
+        // Store token and user info
+        localStorage.setItem('token', response.data.token);
         localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('userEmail', formData.email);
+        localStorage.setItem('userEmail', response.data.user.email);
+        localStorage.setItem('userName', response.data.user.name);
         navigate('/dashboard');
       } else {
-        setError('Please fill in all fields');
+        setError('Invalid email or password');
       }
-    } catch (err) {
-      setError('Invalid email or password');
+    } catch (err: any) {
+      const errorMessage = err?.response?.data?.detail || 'Invalid email or password';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }

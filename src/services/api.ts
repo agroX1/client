@@ -13,10 +13,17 @@ const apiClient = axios.create({
   },
 });
 
-// Add request interceptor for debugging
+// Add request interceptor for debugging and auth
 apiClient.interceptors.request.use(
   (config) => {
     console.log(`API Request: ${config.method?.toUpperCase()} ${config.url}`);
+    
+    // Add auth token if available
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    
     return config;
   },
   (error) => {
@@ -421,6 +428,35 @@ export class AgroXApiService {
       });
     }
     return mockCustomers;
+  }
+}
+
+// Authentication helper functions
+export async function login(email: string, password: string) {
+  try {
+    const response = await apiClient.post('/api/auth/login', {
+      email,
+      password
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Login error:', error);
+    throw error;
+  }
+}
+
+export async function register(email: string, password: string, firstName: string, lastName: string) {
+  try {
+    const response = await apiClient.post('/api/auth/register', {
+      email,
+      password,
+      firstName,
+      lastName
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Registration error:', error);
+    throw error;
   }
 }
 

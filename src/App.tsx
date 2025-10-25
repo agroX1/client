@@ -6,7 +6,7 @@ import CustomerSegmentation from './pages/CustomerSegmentation';
 import CustomerRetention from './pages/CustomerRetention';
 import ProductRecommendations from './pages/ProductRecommendations';
 
-import { SignUp } from './components/account';
+import { SignUp, SignIn } from './components/account';
 
 // Import styles
 import './App.css';
@@ -27,6 +27,7 @@ function App() {
       }}>
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard/segmentation" element={<CustomerSegmentation />} />

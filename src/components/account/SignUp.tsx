@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, User, ArrowRight } from 'lucide-react';
+import { register } from '../../services/api';
 
 export const SignUp: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -51,20 +52,27 @@ export const SignUp: React.FC = () => {
     }
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Call actual API
+      const response = await register(
+        formData.email,
+        formData.password,
+        formData.firstName,
+        formData.lastName
+      );
       
-      // Mock registration - replace with actual API call
-      if (formData.email && formData.password && formData.firstName && formData.lastName) {
+      if (response.success && response.data.token) {
+        // Store token and user info
+        localStorage.setItem('token', response.data.token);
         localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('userEmail', formData.email);
-        localStorage.setItem('userName', `${formData.firstName} ${formData.lastName}`);
+        localStorage.setItem('userEmail', response.data.user.email);
+        localStorage.setItem('userName', response.data.user.name);
         navigate('/dashboard');
       } else {
-        setError('Please fill in all fields');
+        setError('Registration failed. Please try again.');
       }
-    } catch (err) {
-      setError('Registration failed. Please try again.');
+    } catch (err: any) {
+      const errorMessage = err?.response?.data?.detail || 'Registration failed. Please try again.';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
