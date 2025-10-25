@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
-  BarChart3, 
-  Satellite, 
   Home,
-  Menu
+  Menu,
+  Users,
+  Target,
+  TrendingUp,
+  Eye,
+  Map
 } from 'lucide-react';
 import { ProfileDropdown } from './profile';
 
@@ -33,8 +36,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCollapseChange }) =>
 
   const navigationItems = [
     { id: 'dashboard', label: 'Dashboard', icon: Home, path: '/dashboard' },
-    { id: 'analytics', label: 'Analytics', icon: BarChart3, path: '/dashboard/analytics' },
-    { id: 'multispectral', label: 'Multispectral', icon: Satellite, path: '/multispectral' },
+    { id: 'segmentation', label: 'Segmentation', icon: Users, path: '/dashboard/segmentation' },
+    { id: 'retention', label: 'Retention', icon: TrendingUp, path: '/dashboard/retention' },
+    { id: 'recommendations', label: 'Recommendations', icon: Target, path: '/dashboard/recommendations' },
+    { id: 'insights', label: 'Insights', icon: Eye, path: '/dashboard/insights' },
+    { id: 'roadmap', label: 'Roadmap', icon: Map, path: '/dashboard/roadmap' },
   ];
   
 
@@ -49,7 +55,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCollapseChange }) =>
     height: '100vh',
     backgroundColor: '#202123',
     borderRight: '1px solid #4d4d4f',
-    transition: 'all 0.3s ease',
     zIndex: 100,
     display: 'flex',
     flexDirection: 'column',

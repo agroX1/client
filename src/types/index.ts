@@ -1,4 +1,4 @@
-// Types for the AgroX Farm Mapping application
+// Types for the AgroX Dashboard application
 
 export interface LatLng {
   lat: number;
@@ -28,43 +28,8 @@ export interface FarmBoundary {
   createdAt: string;
 }
 
-export interface MapProps {
-  onPolygonComplete?: (coordinates: import('leaflet').LatLng[], area: number) => void;
-  onReset?: () => void;
-  farmBoundaries?: import('leaflet').LatLng[][];
-  analysisResults?: AnalysisResults | null;
-  isDrawing?: boolean;
-  onToggleDrawing?: () => void;
-  currentDrawingPoints?: import('leaflet').LatLng[];
-  setCurrentDrawingPoints?: (points: import('leaflet').LatLng[]) => void;
-  drawnPolygons?: import('leaflet').LatLng[][];
-}
-
-export interface DrawingToolProps {
-  onPolygonComplete: (coordinates: import('leaflet').LatLng[], area: number) => void;
-  isDrawing: boolean;
-  setIsDrawing: (drawing: boolean) => void;
-  currentPoints: import('leaflet').LatLng[];
-  setCurrentPoints: (points: import('leaflet').LatLng[]) => void;
-}
-
-export interface CoordinateInputProps {
-  onCoordinatesSubmit: (coordinates: LatLng[]) => void;
-  onFileUpload: (coordinates: LatLng[]) => void;
-  initialCoordinates?: LatLng[] | null;
-}
-
-export interface AnalysisSubmissionProps {
-  farmBoundaries: LatLng[][];
-  onAnalysisComplete: (results: AnalysisResults) => void;
-}
-
-export type ActiveTab = 'map' | 'coordinates' | 'analysis' | 'multispectral' | 'detection' | 'reports' | 'weather' | 'market';
+export type ActiveTab = 'dashboard' | 'analytics';
 
 export interface AppState {
-  farmBoundaries: LatLng[][];
-  analysisResults: AnalysisResults | null;
   activeTab: ActiveTab;
-  lastDrawnCoordinates: LatLng[] | null;
-  isDrawing: boolean;
 }

@@ -1,91 +1,130 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  BarChart3, 
+  Users, 
   TrendingUp, 
-  Map, 
+  Target, 
+  Eye,
+  ArrowRight,
+  BarChart3,
   Activity,
-  Menu
+  CheckCircle,
+  AlertTriangle
 } from 'lucide-react';
-import { 
-  MetricCard, 
-  WeatherConditions,
-  CropRecommendations,
-  RecentAnalyses
-} from '../components/dashboard';
-import { Sidebar } from '../components/layout/sidebar';
+import { DashboardLayout } from '../components/layout/DashboardLayout';
+import { Card } from '../components/ui/Card';
 
-// Mock data for AgroX Agricultural Dashboard
+// Mock data for Customer Intelligence Dashboard Overview
 const mockDashboardData = {
-  farmMetrics: {
-    totalFarms: 1250,
-    activeAnalyses: 4,
-    totalArea: 2456,
-    avgYield: 70
+  overview: {
+    totalCustomers: 3500,
+    segments: 6,
+    retentionRate: 60,
+    avgLifetimeValue: 125000,
+    recommendations: 450,
+    insights: 12
   },
-  recentAnalyses: [
+  quickStats: [
+    {
+      title: 'Customer Segments',
+      value: '6',
+      description: 'Active segments identified',
+      icon: Users,
+      color: '#3B82F6',
+      path: '/dashboard/segmentation'
+    },
+    {
+      title: 'Retention Rate',
+      value: '60%',
+      description: 'Customers returning',
+      icon: TrendingUp,
+      color: '#10B981',
+      path: '/dashboard/retention'
+    },
+    {
+      title: 'Recommendations',
+      value: '450',
+      description: 'AI-powered suggestions',
+      icon: Target,
+      color: '#F59E0B',
+      path: '/dashboard/recommendations'
+    },
+    {
+      title: 'Insights Generated',
+      value: '12',
+      description: 'AI insights available',
+      icon: Eye,
+      color: '#8B5CF6',
+      path: '/dashboard/insights'
+    }
+  ],
+  recentInsights: [
     {
       id: 1,
-      farmName: 'Asante Cocoa Farm',
-      date: '2024-01-15',
-      ndvi: 0.78,
-      health: 'Excellent',
-      area: 12.5,
-      status: 'completed'
+      type: 'opportunity',
+      title: 'High-Value Customer Growth',
+      description: 'Champions segment shows 25% growth potential with targeted campaigns',
+      confidence: 0.85,
+      impact: 'High'
     },
     {
       id: 2,
-      farmName: 'Mensah Maize Fields',
-      date: '2024-01-14',
-      ndvi: 0.65,
-      health: 'Good',
-      area: 8.2,
-      status: 'completed'
+      type: 'warning',
+      title: 'At-Risk Customer Alert',
+      description: '550 customers showing declining engagement patterns',
+      confidence: 0.92,
+      impact: 'Medium'
     },
     {
       id: 3,
-      farmName: 'Boateng Rice Plantation',
-      date: '2024-01-13',
-      ndvi: 0.45,
-      health: 'Fair',
-      area: 15.8,
-      status: 'in_progress'
+      type: 'insight',
+      title: 'Peak Purchase Hours',
+      description: '6 PM shows highest purchase activity - optimize campaigns',
+      confidence: 0.95,
+      impact: 'Low'
     }
   ],
-  weatherData: {
-    temperature: 28,
-    humidity: 75,
-    rainfall: 15.2,
-    windSpeed: 6.8
-  },
-  cropRecommendations: [
-    { crop: 'Cocoa', suitability: 92, reason: 'Optimal soil conditions and rainfall pattern' },
-    { crop: 'Maize', suitability: 87, reason: 'Seasonal timing and temperature range' },
-    { crop: 'Rice', suitability: 78, reason: 'Water availability and soil type match' }
-  ]
+  topSegments: [
+    {
+      name: 'Champions',
+      count: 450,
+      percentage: 12.9,
+      avgLifetimeValue: 250000,
+      color: '#10B981'
+    },
+    {
+      name: 'Loyal Customers',
+      count: 800,
+      percentage: 22.9,
+      avgLifetimeValue: 180000,
+      color: '#3B82F6'
+    },
+    {
+      name: 'At Risk',
+      count: 550,
+      percentage: 15.7,
+      avgLifetimeValue: 95000,
+      color: '#EF4444'
+    }
+  ],
+  systemStatus: {
+    models: {
+      segmentation: { status: 'active', accuracy: 0.89 },
+      retention: { status: 'active', accuracy: 0.85 },
+      recommendations: { status: 'training', accuracy: 0.78 }
+    },
+    lastUpdate: '2024-01-15 14:30',
+    nextUpdate: '2024-01-16 02:00'
+  }
 };
 
 const Dashboard: React.FC = () => {
   const [data] = useState(mockDashboardData);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Start closed on mobile
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
   
   // Get user info from localStorage
   const userName = localStorage.getItem('userName') || 'User';
 
   useEffect(() => {
-    // Check if mobile
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-      if (window.innerWidth >= 768) {
-        setIsSidebarOpen(true); // Auto-open on desktop
-      }
-    };
-
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-
     // Simulate data loading
     const timer = setTimeout(() => {
       setIsLoading(false);
@@ -93,178 +132,553 @@ const Dashboard: React.FC = () => {
 
     return () => {
       clearTimeout(timer);
-      window.removeEventListener('resize', checkMobile);
     };
   }, []);
 
   if (isLoading) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        height: '400px' 
-      }}>
+      <DashboardLayout>
         <div style={{ 
           display: 'flex', 
           alignItems: 'center', 
-          gap: '0.75rem',
-          color: 'var(--text-secondary)'
+          justifyContent: 'center', 
+          height: '400px' 
         }}>
-          <Activity className="animate-spin" size={20} />
-          <span>Loading dashboard...</span>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '0.75rem',
+            color: 'var(--text-secondary)'
+          }}>
+            <Activity className="animate-spin" size={20} />
+            <span>Loading dashboard...</span>
+          </div>
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: 'var(--bg-secondary)' }}>
-      {/* Sidebar */}
-      <Sidebar 
-        isOpen={isSidebarOpen} 
-        onCollapseChange={setIsSidebarCollapsed}
-      />
-      
-      {/* Main Content */}
-      <div style={{ 
-        flex: 1, 
-        marginLeft: isMobile ? '0' : (isSidebarOpen ? (isSidebarCollapsed ? '60px' : '240px') : '0'),
-        transition: 'margin-left 0.3s ease',
-        padding: isMobile ? '1rem' : '2rem',
-        paddingTop: isMobile ? '4rem' : '2rem' // Space for mobile menu button
+    <DashboardLayout>
+      {/* Dashboard Header */}
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1rem',
+        marginBottom: '1.5rem',
+        paddingBottom: '1rem',
+        borderBottom: '1px solid var(--border-color)'
       }}>
-        {/* Mobile Menu Button */}
-        {isMobile && (
-          <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            style={{
-              position: 'fixed',
-              top: '1rem',
-              right: '1rem',
-              zIndex: 1001,
-              backgroundColor: 'var(--bg-primary)',
-              border: '1px solid var(--border-color)',
-              borderRadius: '0.5rem',
-              padding: '0.5rem',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-              width: '44px',
-              height: '44px'
-            }}
-          >
-            <Menu size={20} color="var(--text-primary)" />
-          </button>
-        )}
-
-        {/* Mobile Overlay */}
-        {isMobile && isSidebarOpen && (
-          <div
-            onClick={() => setIsSidebarOpen(false)}
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-              zIndex: 999
-            }}
-          />
-        )}
-
-        {/* Dashboard Header */}
+        <div>
+          <h1 style={{
+            fontSize: '1.5rem',
+            fontWeight: '700',
+            color: 'var(--text-primary)',
+            margin: 0,
+            marginBottom: '0.25rem'
+          }}>
+            Customer Intelligence Dashboard
+          </h1>
+          <p style={{
+            fontSize: '0.875rem',
+            color: 'var(--text-secondary)',
+            margin: 0
+          }}>
+            Welcome back, {userName.split(' ')[0]}! Here's your customer intelligence overview.
+          </p>
+        </div>
         <div style={{
           display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: isMobile ? 'flex-start' : 'center',
-          marginBottom: isMobile ? '1.5rem' : '2rem',
-          paddingBottom: '1rem',
-          borderBottom: '1px solid var(--border-color)',
-          flexDirection: isMobile ? 'column' : 'row',
-          gap: isMobile ? '0.5rem' : '0'
+          alignItems: 'center',
+          gap: '0.5rem',
+          padding: '0.5rem 1rem',
+          backgroundColor: 'var(--bg-primary)',
+          border: '1px solid var(--border-color)',
+          borderRadius: '0.375rem',
+          fontSize: '0.75rem',
+          color: 'var(--text-secondary)',
+          alignSelf: 'flex-start'
         }}>
-          <div>
-            <h1 style={{
-              fontSize: isMobile ? '1.5rem' : '1.75rem',
-              fontWeight: '700',
-              color: 'var(--text-primary)',
-              margin: 0,
-              marginBottom: '0.25rem'
-            }}>
-              Dashboard
-            </h1>
-            <p style={{
-              fontSize: isMobile ? '0.8rem' : '0.875rem',
-              color: 'var(--text-secondary)',
-              margin: 0
-            }}>
-              Welcome back, {userName.split(' ')[0]}! Here's your farm overview.
-            </p>
-          </div>
+          <Activity size={14} />
+          <span>Last updated: {data.systemStatus.lastUpdate}</span>
         </div>
+      </div>
 
-      {/* Key Metrics Grid */}
+      {/* Key Metrics Overview */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
-        gap: isMobile ? '0.75rem' : '1.5rem',
-        marginBottom: isMobile ? '1.5rem' : '2rem'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+        gap: '1rem',
+        marginBottom: '1.5rem'
       }}>
-        <MetricCard
-          title="Total Farms"
-          value={data.farmMetrics.totalFarms}
-          change="+25 this month"
-          changeType="positive"
-          icon={<Map size={24} />}
-          subtitle="Registered farms"
-        />
-        <MetricCard
-          title="Active Analyses"
-          value={data.farmMetrics.activeAnalyses}
-          change="+2 new analyses"
-          changeType="positive"
-          icon={<Activity size={24} />}
-          subtitle="Ongoing monitoring"
-        />
-        <MetricCard
-          title="Total Area"
-          value={`${data.farmMetrics.totalArea.toLocaleString()} ha`}
-          change="+15% this month"
-          changeType="positive"
-          icon={<BarChart3 size={24} />}
-          subtitle="Monitored land"
-        />
-        <MetricCard
-          title="Avg Yield"
-          value={`${data.farmMetrics.avgYield}%`}
-          change="+8% improvement"
-          changeType="positive"
-          icon={<TrendingUp size={24} />}
-          subtitle="Crop productivity"
-        />
+        <Card padding="md">
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            marginBottom: '0.75rem'
+          }}>
+            <Users size={18} style={{ color: '#3B82F6' }} />
+            <h3 style={{
+              fontSize: '0.875rem',
+              fontWeight: '600',
+              color: 'var(--text-primary)',
+              margin: 0
+            }}>
+              Total Customers
+            </h3>
+          </div>
+          <div style={{
+            fontSize: '1.5rem',
+            fontWeight: '700',
+            color: '#3B82F6',
+            marginBottom: '0.25rem'
+          }}>
+            {data.overview.totalCustomers.toLocaleString()}
+          </div>
+          <div style={{
+            fontSize: '0.75rem',
+            color: 'var(--text-secondary)'
+          }}>
+            Active customer base
+          </div>
+        </Card>
+
+        <Card padding="md">
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            marginBottom: '0.75rem'
+          }}>
+            <BarChart3 size={18} style={{ color: '#10B981' }} />
+            <h3 style={{
+              fontSize: '0.875rem',
+              fontWeight: '600',
+              color: 'var(--text-primary)',
+              margin: 0
+            }}>
+              Avg Lifetime Value
+            </h3>
+          </div>
+          <div style={{
+            fontSize: '1.5rem',
+            fontWeight: '700',
+            color: '#10B981',
+            marginBottom: '0.25rem'
+          }}>
+            ₦{(data.overview.avgLifetimeValue / 1000).toFixed(0)}k
+          </div>
+          <div style={{
+            fontSize: '0.75rem',
+            color: 'var(--text-secondary)'
+          }}>
+            Per customer
+          </div>
+        </Card>
+
+        <Card padding="md">
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            marginBottom: '0.75rem'
+          }}>
+            <Target size={18} style={{ color: '#F59E0B' }} />
+            <h3 style={{
+              fontSize: '0.875rem',
+              fontWeight: '600',
+              color: 'var(--text-primary)',
+              margin: 0
+            }}>
+              Active Models
+            </h3>
+          </div>
+          <div style={{
+            fontSize: '1.5rem',
+            fontWeight: '700',
+            color: '#F59E0B',
+            marginBottom: '0.25rem'
+          }}>
+            {Object.values(data.systemStatus.models).filter(model => model.status === 'active').length}
+          </div>
+          <div style={{
+            fontSize: '0.75rem',
+            color: 'var(--text-secondary)'
+          }}>
+            ML models running
+          </div>
+        </Card>
+
+        <Card padding="md">
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            marginBottom: '0.75rem'
+          }}>
+            <Eye size={18} style={{ color: '#8B5CF6' }} />
+            <h3 style={{
+              fontSize: '0.875rem',
+              fontWeight: '600',
+              color: 'var(--text-primary)',
+              margin: 0
+            }}>
+              AI Insights
+            </h3>
+          </div>
+          <div style={{
+            fontSize: '1.5rem',
+            fontWeight: '700',
+            color: '#8B5CF6',
+            marginBottom: '0.25rem'
+          }}>
+            {data.overview.insights}
+          </div>
+          <div style={{
+            fontSize: '0.75rem',
+            color: 'var(--text-secondary)'
+          }}>
+            Generated insights
+          </div>
+        </Card>
       </div>
 
-      {/* Agricultural Analytics */}
+      {/* Quick Navigation Cards */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+        gap: '0.75rem',
+        marginBottom: '1.5rem'
+      }}>
+        {data.quickStats.map((stat, index) => {
+          const Icon = stat.icon;
+          return (
+            <div
+              key={index}
+              onClick={() => window.location.href = stat.path}
+              style={{
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <Card 
+                padding="md"
+                style={{
+                  border: '1px solid var(--border-color)',
+                  textAlign: 'center'
+                }}
+              >
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}>
+                  <div style={{
+                    padding: '0.5rem',
+                    backgroundColor: `${stat.color}20`,
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <Icon size={20} style={{ color: stat.color }} />
+                  </div>
+                  
+                  <div style={{
+                    fontSize: '1.5rem',
+                    fontWeight: '700',
+                    color: stat.color,
+                    marginBottom: '0.25rem'
+                  }}>
+                    {stat.value}
+                  </div>
+                  
+                  <div style={{ textAlign: 'center' }}>
+                    <h3 style={{
+                      fontSize: '0.75rem',
+                      fontWeight: '600',
+                      color: 'var(--text-primary)',
+                      margin: 0,
+                      marginBottom: '0.25rem'
+                    }}>
+                      {stat.title}
+                    </h3>
+                    <p style={{
+                      fontSize: '0.625rem',
+                      color: 'var(--text-secondary)',
+                      margin: 0,
+                      lineHeight: '1.2'
+                    }}>
+                      {stat.description}
+                    </p>
+                  </div>
+                  
+                  <ArrowRight size={12} style={{ color: 'var(--text-secondary)' }} />
+                </div>
+              </Card>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Recent Insights and Top Segments */}
       <div style={{ 
         display: 'grid', 
-        gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(350px, 1fr))', 
-        gap: isMobile ? '1rem' : '1.5rem',
-        marginBottom: isMobile ? '1.5rem' : '2rem'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+        gap: '1rem',
+        marginBottom: '1.5rem'
       }}>
-        <WeatherConditions weatherData={data.weatherData} />
-        <CropRecommendations recommendations={data.cropRecommendations} />
+        {/* Recent AI Insights */}
+        <Card padding="lg">
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            marginBottom: '1.5rem'
+          }}>
+            <Eye size={20} style={{ color: '#8B5CF6' }} />
+            <h3 style={{
+              fontSize: '1.25rem',
+              fontWeight: '600',
+              color: 'var(--text-primary)',
+              margin: 0
+            }}>
+              Recent AI Insights
+            </h3>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {data.recentInsights.map((insight) => (
+              <div key={insight.id} style={{
+                padding: '1rem',
+                backgroundColor: 'var(--card-background)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '0.5rem',
+                borderLeft: `4px solid ${
+                  insight.type === 'opportunity' ? '#10B981' :
+                  insight.type === 'warning' ? '#EF4444' : '#3B82F6'
+                }`
+              }}>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                  marginBottom: '0.5rem'
+                }}>
+                  <h4 style={{
+                    fontSize: '0.875rem',
+                    fontWeight: '600',
+                    color: 'var(--text-primary)',
+                    margin: 0
+                  }}>
+                    {insight.title}
+                  </h4>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.25rem'
+                  }}>
+                    <div style={{
+                      width: '6px',
+                      height: '6px',
+                      borderRadius: '50%',
+                      backgroundColor: insight.impact === 'High' ? '#EF4444' :
+                                     insight.impact === 'Medium' ? '#F59E0B' : '#10B981'
+                    }} />
+                    <span style={{
+                      fontSize: '0.75rem',
+                      fontWeight: '600',
+                      color: 'var(--text-secondary)'
+                    }}>
+                      {insight.impact}
+                    </span>
+                  </div>
+                </div>
+                <p style={{
+                  fontSize: '0.75rem',
+                  color: 'var(--text-secondary)',
+                  margin: 0,
+                  marginBottom: '0.5rem',
+                  lineHeight: '1.4'
+                }}>
+                  {insight.description}
+                </p>
+                <div style={{
+                  fontSize: '0.75rem',
+                  color: 'var(--text-secondary)'
+                }}>
+                  Confidence: {(insight.confidence * 100).toFixed(0)}%
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        {/* Top Customer Segments */}
+        <Card padding="lg">
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            marginBottom: '1.5rem'
+          }}>
+            <Users size={20} style={{ color: '#3B82F6' }} />
+            <h3 style={{
+              fontSize: '1.25rem',
+              fontWeight: '600',
+              color: 'var(--text-primary)',
+              margin: 0
+            }}>
+              Top Customer Segments
+            </h3>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {data.topSegments.map((segment, index) => (
+              <div key={index} style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '1rem',
+                backgroundColor: 'var(--card-background)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '0.5rem'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem'
+                }}>
+                  <div style={{
+                    width: '12px',
+                    height: '12px',
+                    borderRadius: '50%',
+                    backgroundColor: segment.color
+                  }} />
+                  <div>
+                    <h4 style={{
+                      fontSize: '0.875rem',
+                      fontWeight: '600',
+                      color: 'var(--text-primary)',
+                      margin: 0,
+                      marginBottom: '0.25rem'
+                    }}>
+                      {segment.name}
+                    </h4>
+                    <p style={{
+                      fontSize: '0.75rem',
+                      color: 'var(--text-secondary)',
+                      margin: 0
+                    }}>
+                      {segment.count.toLocaleString()} customers ({segment.percentage}%)
+                    </p>
+                  </div>
+                </div>
+                <div style={{
+                  textAlign: 'right'
+                }}>
+                  <div style={{
+                    fontSize: '0.875rem',
+                    fontWeight: '600',
+                    color: 'var(--text-primary)'
+                  }}>
+                    ₦{(segment.avgLifetimeValue / 1000).toFixed(0)}k
+                  </div>
+                  <div style={{
+                    fontSize: '0.75rem',
+                    color: 'var(--text-secondary)'
+                  }}>
+                    Avg LTV
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
       </div>
 
-      {/* Recent Farm Analyses */}
-      <div style={{ marginBottom: isMobile ? '1.5rem' : '2rem' }}>
-        <RecentAnalyses analyses={data.recentAnalyses} />
+      {/* System Status */}
+      <Card padding="lg">
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          marginBottom: '1.5rem'
+        }}>
+          <Activity size={20} style={{ color: '#10B981' }} />
+          <h3 style={{
+            fontSize: '1.25rem',
+            fontWeight: '600',
+            color: 'var(--text-primary)',
+            margin: 0
+          }}>
+            System Status
+          </h3>
+        </div>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+          gap: '0.75rem'
+        }}>
+          {Object.entries(data.systemStatus.models).map(([modelName, model]) => (
+            <div key={modelName} style={{
+              padding: '1rem',
+              backgroundColor: 'var(--card-background)',
+              border: '1px solid var(--border-color)',
+              borderRadius: '0.5rem',
+              textAlign: 'center'
+            }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                marginBottom: '0.5rem'
+              }}>
+                {model.status === 'active' ? (
+                  <CheckCircle size={16} style={{ color: '#10B981' }} />
+                ) : (
+                  <AlertTriangle size={16} style={{ color: '#F59E0B' }} />
+                )}
+                <span style={{
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  color: 'var(--text-primary)',
+                  textTransform: 'capitalize'
+                }}>
+                  {modelName}
+                </span>
+              </div>
+              <div style={{
+                fontSize: '0.75rem',
+                color: 'var(--text-secondary)',
+                marginBottom: '0.25rem'
+              }}>
+                Accuracy: {(model.accuracy * 100).toFixed(0)}%
+              </div>
+              <div style={{
+                fontSize: '0.75rem',
+                fontWeight: '600',
+                color: model.status === 'active' ? '#10B981' : '#F59E0B'
+              }}>
+                {model.status === 'active' ? 'Active' : 'Training'}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{
+          marginTop: '1rem',
+          padding: '1rem',
+          backgroundColor: 'var(--bg-secondary)',
+          borderRadius: '0.5rem',
+          fontSize: '0.875rem',
+          color: 'var(--text-secondary)',
+          textAlign: 'center'
+        }}>
+          Next model update: {data.systemStatus.nextUpdate}
       </div>
-      </div>
-    </div>
+      </Card>
+    </DashboardLayout>
   );
 };
 

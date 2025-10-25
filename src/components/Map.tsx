@@ -35,7 +35,7 @@ interface DrawingToolProps {
 
 const DrawingTool: React.FC<DrawingToolProps> = ({ onPolygonComplete, isDrawing, setIsDrawing, currentPoints, setCurrentPoints }) => {
   useMapEvents({
-    click: (e) => {
+    click: (e: any) => {
       if (!isDrawing) return;
       
       const newPoint = e.latlng;
@@ -60,7 +60,7 @@ const DrawingTool: React.FC<DrawingToolProps> = ({ onPolygonComplete, isDrawing,
         }
       }
     },
-    dblclick: (e) => {
+    dblclick: (e: any) => {
       if (!isDrawing || currentPoints.length < 3) return;
       
       // Complete polygon on double-click

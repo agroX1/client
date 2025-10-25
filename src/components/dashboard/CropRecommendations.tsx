@@ -1,6 +1,26 @@
 import React from 'react';
 import { BarChart3 } from 'lucide-react';
 import { Card } from '../ui/Card';
+import { Bar } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 interface CropRecommendation {
   crop: string;
@@ -13,6 +33,70 @@ interface CropRecommendationsProps {
 }
 
 export const CropRecommendations: React.FC<CropRecommendationsProps> = ({ recommendations }) => {
+  // Prepare chart data for crop recommendations
+  const cropChartData = {
+    labels: recommendations.map(crop => crop.crop),
+    datasets: [
+      {
+        label: 'Suitability Score',
+        data: recommendations.map(crop => crop.suitability),
+        backgroundColor: [
+          '#10B981', // Green for high suitability
+          '#3B82F6', // Blue for medium-high suitability
+          '#F59E0B'  // Yellow for medium suitability
+        ],
+        borderColor: [
+          '#059669',
+          '#1D4ED8',
+          '#D97706'
+        ],
+        borderWidth: 2,
+        borderRadius: 4,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false
+      },
+      tooltip: {
+        callbacks: {
+          label: function(context: any) {
+            const crop = recommendations[context.dataIndex];
+            return `${crop.crop}: ${crop.suitability}% suitability`;
+          },
+          afterLabel: function(context: any) {
+            const crop = recommendations[context.dataIndex];
+            return crop.reason;
+          }
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        max: 100,
+        ticks: {
+          callback: function(value: any) {
+            return value + '%';
+          }
+        },
+        grid: {
+          color: 'rgba(0, 0, 0, 0.1)'
+        }
+      },
+      x: {
+        grid: {
+          display: false
+        }
+      }
+    }
+  };
+
   return (
     <Card padding="lg">
       <div style={{ 
@@ -30,6 +114,13 @@ export const CropRecommendations: React.FC<CropRecommendationsProps> = ({ recomm
           Crop Recommendations
         </h3>
       </div>
+
+      {/* Crop Suitability Chart */}
+      <div style={{ height: '200px', width: '100%', marginBottom: '1.5rem' }}>
+        <Bar data={cropChartData} options={chartOptions} />
+      </div>
+
+      {/* Crop Details */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         {recommendations.map((crop, index) => (
           <div key={index} style={{ 
@@ -63,7 +154,8 @@ export const CropRecommendations: React.FC<CropRecommendationsProps> = ({ recomm
             <div style={{ 
               fontSize: '1rem', 
               fontWeight: 'bold', 
-              color: 'var(--accent-green)',
+              color: crop.suitability >= 90 ? '#10B981' : 
+                     crop.suitability >= 80 ? '#3B82F6' : '#F59E0B',
               flexShrink: 0
             }}>
               {crop.suitability}%
