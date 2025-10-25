@@ -122,7 +122,6 @@ const mockDashboardData = {
 const Dashboard: React.FC = () => {
   const [data, setData] = useState(mockDashboardData);
   const [isLoading, setIsLoading] = useState(true);
-  const [apiStatus, setApiStatus] = useState<'connected' | 'disconnected' | 'error'>('disconnected');
 
   // Load real-time data from professional API
   useEffect(() => {
@@ -138,7 +137,6 @@ const Dashboard: React.FC = () => {
       
       // Test API connection
       await apiService.healthCheck();
-      setApiStatus('connected');
       
       // Load segmentation data
       const segmentationData = await apiService.getProfessionalSegmentation();
@@ -214,7 +212,6 @@ const Dashboard: React.FC = () => {
         setData(updatedData);
       }
     } catch (err) {
-      setApiStatus('error');
       console.error('Error loading dashboard data:', err);
     } finally {
       setIsLoading(false);

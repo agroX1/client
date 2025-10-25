@@ -1,21 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Users, 
-  TrendingUp, 
   Target, 
   BarChart3,
-  RefreshCw,
-  Download,
-  Filter,
   AlertTriangle,
-  X,
-  Eye
+  X
 } from 'lucide-react';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { Card } from '../components/ui/Card';
-import { Button } from '../components/ui/Button';
 import { CustomerTable } from '../components/CustomerTable';
-import { Bar, Doughnut, Scatter } from 'react-chartjs-2';
+import { Bar, Doughnut } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -134,8 +128,6 @@ const mockSegmentationData = {
 
 const CustomerSegmentation: React.FC = () => {
   const [data, setData] = useState(mockSegmentationData);
-  const [isLoading, setIsLoading] = useState(false);
-  const [selectedSegment, setSelectedSegment] = useState<number | null>(null);
   const [filterPeriod, setFilterPeriod] = useState('all');
   const [segmentationData, setSegmentationData] = useState<ProfessionalSegmentationResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -153,7 +145,6 @@ const CustomerSegmentation: React.FC = () => {
 
   const loadSegmentationData = async () => {
     try {
-      setIsLoading(true);
       setError(null);
       const result = await apiService.getProfessionalSegmentation();
       setSegmentationData(result);
@@ -181,8 +172,6 @@ const CustomerSegmentation: React.FC = () => {
       const apiError = handleApiError(err);
       setError(apiError.message);
       console.error('Error loading segmentation data:', err);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -252,9 +241,7 @@ const CustomerSegmentation: React.FC = () => {
     return '#6B7280'; // Default color
   };
 
-  const handleRefresh = () => {
-    loadSegmentationData();
-  };
+
 
   // Handle cluster click to show customers
   const handleClusterClick = async (clusterName: string, clusterId: number) => {
@@ -309,28 +296,7 @@ const CustomerSegmentation: React.FC = () => {
     setClusterCustomers([]);
   };
 
-  const handleExport = () => {
-    // Export professional segmentation data
-    if (segmentationData) {
-      const exportData = {
-        predictions: segmentationData.predictions,
-        summary: segmentationData.summary,
-        top_products_by_cluster: segmentationData.top_products_by_cluster,
-        model_metrics: segmentationData.model_metrics,
-        exported_at: new Date().toISOString()
-      };
-      
-      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `segmentation_data_${new Date().toISOString().split('T')[0]}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
-  };
+
 
   // Prepare chart data
   const segmentChartData = {

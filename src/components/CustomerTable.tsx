@@ -113,14 +113,6 @@ export const CustomerTable: React.FC<CustomerTableProps> = ({
     }).format(amount);
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-NG', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-
   const getRecencyBadge = (recency: number) => {
     if (recency <= 30) return <Badge variant="success">Recent</Badge>;
     if (recency <= 90) return <Badge variant="warning">Moderate</Badge>;
