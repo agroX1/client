@@ -289,6 +289,20 @@ export class AgroXApiService {
     return response.data.data;
   }
 
+  // Dynamic Insights Generation
+  async generateDynamicInsights(
+    customerIds?: string[],
+    batchSize: number = 100,
+    dynamicClusters: boolean = true
+  ) {
+    const response = await apiClient.post('/api/insights/dynamic', {
+      customer_ids: customerIds,
+      batch_size: batchSize,
+      dynamic_clusters: dynamicClusters,
+    });
+    return response.data.data;
+  }
+
   // Get customer data (for analytics)
   async getCustomerData(limit: number = 1000): Promise<CustomerData[]> {
     // This would need to be implemented in the backend

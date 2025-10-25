@@ -6,18 +6,15 @@ import {
   CheckCircle,
   RefreshCw,
   Download,
-  Filter,
-  Eye,
-  BarChart3
+  Eye
 } from 'lucide-react';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { Card } from '../components/ui/Card';
-import { Bar, Line, Doughnut } from 'react-chartjs-2';
+import { Line, Doughnut } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  BarElement,
   Title,
   Tooltip,
   Legend,
@@ -32,7 +29,6 @@ import type { ProfessionalRetentionResponse } from '../services/api';
 ChartJS.register(
   CategoryScale,
   LinearScale,
-  BarElement,
   Title,
   Tooltip,
   Legend,
@@ -56,36 +52,6 @@ const mockRetentionData = {
     retentionRates: [55, 58, 62, 59, 65, 68, 70, 67, 72, 75, 73, 60],
     churnRates: [45, 42, 38, 41, 35, 32, 30, 33, 28, 25, 27, 40]
   },
-  customerCohorts: [
-    {
-      cohort: 'Q1 2024',
-      customers: 800,
-      retentionRate: 65,
-      avgLifetimeValue: 135000,
-      status: 'stable'
-    },
-    {
-      cohort: 'Q2 2024',
-      customers: 950,
-      retentionRate: 72,
-      avgLifetimeValue: 142000,
-      status: 'improving'
-    },
-    {
-      cohort: 'Q3 2024',
-      customers: 1100,
-      retentionRate: 68,
-      avgLifetimeValue: 128000,
-      status: 'stable'
-    },
-    {
-      cohort: 'Q4 2024',
-      customers: 650,
-      retentionRate: 45,
-      avgLifetimeValue: 95000,
-      status: 'declining'
-    }
-  ],
   riskSegments: [
     {
       segment: 'High Risk',
@@ -148,7 +114,7 @@ const CustomerRetention: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedTimeframe, setSelectedTimeframe] = useState('12m');
   const [selectedRiskLevel, setSelectedRiskLevel] = useState('all');
-  const [professionalData, setProfessionalData] = useState<ProfessionalRetentionResponse | null>(null);
+  const [retentionData, setRetentionData] = useState<ProfessionalRetentionResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Load professional retention data
@@ -161,7 +127,7 @@ const CustomerRetention: React.FC = () => {
       setIsLoading(true);
       setError(null);
       const result = await apiService.getProfessionalRetention();
-      setProfessionalData(result);
+      setRetentionData(result);
       
       // Update mock data with real data if available
       if (result) {
@@ -190,12 +156,12 @@ const CustomerRetention: React.FC = () => {
 
   const handleExport = () => {
     // Export professional retention data
-    if (professionalData) {
+    if (retentionData) {
       const exportData = {
-        predictions: professionalData.predictions,
-        summary: professionalData.summary,
-        top_products_by_retention_class: professionalData.top_products_by_retention_class,
-        model_metrics: professionalData.model_metrics,
+        predictions: retentionData.predictions,
+        summary: retentionData.summary,
+        top_products_by_retention_class: retentionData.top_products_by_retention_class,
+        model_metrics: retentionData.model_metrics,
         exported_at: new Date().toISOString()
       };
       
@@ -246,18 +212,6 @@ const CustomerRetention: React.FC = () => {
     ]
   };
 
-  const cohortData = {
-    labels: data.customerCohorts.map(cohort => cohort.cohort),
-    datasets: [
-      {
-        label: 'Retention Rate (%)',
-        data: data.customerCohorts.map(cohort => cohort.retentionRate),
-        backgroundColor: '#3B82F6',
-        borderColor: '#1D4ED8',
-        borderWidth: 1,
-      }
-    ]
-  };
 
   const chartOptions = {
     responsive: true,
@@ -574,28 +528,6 @@ const CustomerRetention: React.FC = () => {
         </Card>
       </div>
 
-      {/* Cohort Analysis */}
-      <Card padding="lg" style={{ marginBottom: '2rem' }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          marginBottom: '1.5rem'
-        }}>
-          <BarChart3 size={20} style={{ color: '#10B981' }} />
-          <h3 style={{
-            fontSize: '1.25rem',
-            fontWeight: '600',
-            color: 'var(--text-primary)',
-            margin: 0
-          }}>
-            Cohort Analysis
-          </h3>
-        </div>
-        <div style={{ height: '250px', width: '100%' }}>
-          <Bar data={cohortData} options={chartOptions} />
-        </div>
-      </Card>
 
       {/* Customer Predictions Table */}
       <Card padding="lg">
@@ -796,7 +728,7 @@ const CustomerRetention: React.FC = () => {
       </Card>
 
       {/* Professional Data Section */}
-      {professionalData && (
+      {retentionData && (
         <div style={{ marginTop: '2rem' }}>
           <h2 style={{
             fontSize: '1.25rem',
@@ -835,7 +767,7 @@ const CustomerRetention: React.FC = () => {
                   fontWeight: '700',
                   color: '#10B981'
                 }}>
-                  {(professionalData.model_metrics.accuracy * 100).toFixed(1)}%
+                  {(retentionData.model_metrics.accuracy * 100).toFixed(1)}%
                 </div>
               </div>
               <div>
@@ -849,9 +781,9 @@ const CustomerRetention: React.FC = () => {
                 <div style={{
                   fontSize: '1rem',
                   fontWeight: '600',
-                  color: professionalData.model_metrics.status === 'active' ? '#10B981' : '#F59E0B'
+                  color: retentionData.model_metrics.status === 'active' ? '#10B981' : '#F59E0B'
                 }}>
-                  {professionalData.model_metrics.status}
+                  {retentionData.model_metrics.status}
                 </div>
               </div>
               <div>
@@ -867,14 +799,14 @@ const CustomerRetention: React.FC = () => {
                   fontWeight: '500',
                   color: 'var(--text-primary)'
                 }}>
-                  {professionalData.workflow}
+                  {retentionData.workflow}
                 </div>
               </div>
             </div>
           </Card>
 
           {/* Top Products by Retention Class */}
-          {Object.keys(professionalData.top_products_by_retention_class).length > 0 && (
+          {Object.keys(retentionData.top_products_by_retention_class).length > 0 && (
             <Card padding="lg">
               <h3 style={{
                 fontSize: '1rem',
@@ -889,7 +821,7 @@ const CustomerRetention: React.FC = () => {
                 gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
                 gap: '1.5rem'
               }}>
-                {Object.entries(professionalData.top_products_by_retention_class).map(([retentionClass, products]) => (
+                {Object.entries(retentionData.top_products_by_retention_class).map(([retentionClass, products]) => (
                   <div key={retentionClass}>
                     <h4 style={{
                       fontSize: '0.875rem',

@@ -594,7 +594,7 @@ const ProductRecommendations: React.FC = () => {
               color: 'var(--text-primary)',
               margin: 0
             }}>
-              Top Product Recommendations
+              Top Product Analytics by Segment
             </h3>
           </div>
           
@@ -609,7 +609,7 @@ const ProductRecommendations: React.FC = () => {
               }} />
               <input
                 type="text"
-                placeholder="Search products..."
+                placeholder="Search analytics..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
@@ -710,13 +710,13 @@ const ProductRecommendations: React.FC = () => {
                     fontWeight: '700',
                     color: '#10B981'
                   }}>
-                    ₦{product.price.toLocaleString()}
+                    {(product.recommendationScore * 100).toFixed(0)}% Match
                   </div>
                   <div style={{
                     fontSize: '0.75rem',
                     color: 'var(--text-secondary)'
                   }}>
-                    Stock: {product.stock}
+                    Recommendation Score
                   </div>
                 </div>
                 <div style={{
@@ -727,13 +727,13 @@ const ProductRecommendations: React.FC = () => {
                     fontWeight: '600',
                     color: 'var(--text-primary)'
                   }}>
-                    {(product.recommendationScore * 100).toFixed(0)}% Match
+                    {product.purchaseCount} customers
                   </div>
                   <div style={{
                     fontSize: '0.75rem',
                     color: 'var(--text-secondary)'
                   }}>
-                    {product.purchaseCount} purchases
+                    In this segment
                   </div>
                 </div>
               </div>
@@ -754,15 +754,21 @@ const ProductRecommendations: React.FC = () => {
                 }} />
               </div>
 
-              <p style={{
-                fontSize: '0.75rem',
-                color: 'var(--text-secondary)',
-                margin: 0,
-                marginBottom: '0.75rem',
-                lineHeight: '1.4'
+              <div style={{
+                padding: '0.75rem',
+                backgroundColor: 'var(--bg-secondary)',
+                borderRadius: '0.375rem',
+                marginBottom: '0.75rem'
               }}>
-                {product.reason}
-              </p>
+                <p style={{
+                  fontSize: '0.75rem',
+                  color: 'var(--text-secondary)',
+                  margin: 0,
+                  lineHeight: '1.4'
+                }}>
+                  {product.reason}
+                </p>
+              </div>
 
               <div style={{
                 display: 'flex',
@@ -770,16 +776,21 @@ const ProductRecommendations: React.FC = () => {
               }}>
                 <button style={{
                   flex: 1,
-                  backgroundColor: '#10B981',
-                  color: 'white',
-                  border: 'none',
+                  backgroundColor: 'transparent',
+                  color: 'var(--text-primary)',
+                  border: '1px solid var(--border-color)',
                   borderRadius: '0.375rem',
                   padding: '0.5rem',
                   fontSize: '0.875rem',
                   fontWeight: '600',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem'
                 }}>
-                  Add to Cart
+                  <BarChart3 size={16} />
+                  View Analytics
                 </button>
                 <button style={{
                   backgroundColor: 'transparent',
@@ -789,7 +800,7 @@ const ProductRecommendations: React.FC = () => {
                   padding: '0.5rem',
                   cursor: 'pointer'
                 }}>
-                  <Heart size={16} />
+                  <Eye size={16} />
                 </button>
               </div>
             </div>

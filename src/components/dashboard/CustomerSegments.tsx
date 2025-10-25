@@ -16,24 +16,60 @@ interface CustomerSegmentsProps {
 }
 
 export const CustomerSegments: React.FC<CustomerSegmentsProps> = ({ segments }) => {
-  const getSegmentColor = (segmentId: number) => {
-    switch (segmentId) {
-      case 0: return 'var(--accent-red)'; // Dormant/Churned
-      case 1: return 'var(--accent-green)'; // Loyal/Engaged
-      case 2: return '#F59E0B'; // New/Recent but Inactive
-      case 3: return '#3B82F6'; // High-Engagement/Recent High-Value
-      default: return 'var(--text-secondary)';
+  const getSegmentColor = (segmentId: number, segmentName: string) => {
+    // Dynamic color assignment based on segment characteristics
+    const colorMap: Record<string, string> = {
+      'Dormant/Churned': 'var(--accent-red)',
+      'Loyal/Engaged': 'var(--accent-green)', 
+      'New/Recent but Inactive': '#F59E0B',
+      'High-Engagement/Recent High-Value': '#3B82F6',
+      'High-Value': '#8B5CF6',
+      'Low-Value': '#6B7280',
+      'Recent': '#06B6D4',
+      'Engaged': '#10B981',
+      'Inactive': '#EF4444',
+      'Moderate': '#F59E0B'
+    };
+    
+    // Try to match by full name first, then by keywords
+    if (colorMap[segmentName]) {
+      return colorMap[segmentName];
     }
+    
+    // Fallback to keyword matching
+    if (segmentName.includes('Dormant') || segmentName.includes('Churned')) {
+      return 'var(--accent-red)';
+    } else if (segmentName.includes('Loyal') || segmentName.includes('Engaged')) {
+      return 'var(--accent-green)';
+    } else if (segmentName.includes('High-Value') || segmentName.includes('High-Engagement')) {
+      return '#3B82F6';
+    } else if (segmentName.includes('New') || segmentName.includes('Recent')) {
+      return '#F59E0B';
+    }
+    
+    // Default color assignment based on segment ID
+    const colors = [
+      'var(--accent-red)', 'var(--accent-green)', '#F59E0B', '#3B82F6', 
+      '#8B5CF6', '#06B6D4', '#EF4444', '#10B981'
+    ];
+    return colors[segmentId % colors.length];
   };
 
-  const getSegmentIcon = (segmentId: number) => {
-    switch (segmentId) {
-      case 0: return Clock;
-      case 1: return Users;
-      case 2: return TrendingUp;
-      case 3: return DollarSign;
-      default: return Users;
+  const getSegmentIcon = (segmentId: number, segmentName: string) => {
+    // Dynamic icon assignment based on segment characteristics
+    if (segmentName.includes('Dormant') || segmentName.includes('Churned')) {
+      return Clock;
+    } else if (segmentName.includes('Loyal') || segmentName.includes('Engaged')) {
+      return Users;
+    } else if (segmentName.includes('High-Value') || segmentName.includes('High-Engagement')) {
+      return DollarSign;
+    } else if (segmentName.includes('New') || segmentName.includes('Recent')) {
+      return TrendingUp;
     }
+    
+    // Default icon assignment based on segment ID
+    const icons = [Clock, Users, TrendingUp, DollarSign, Users, Clock, TrendingUp, DollarSign];
+    return icons[segmentId % icons.length];
   };
 
   return (
@@ -70,8 +106,8 @@ export const CustomerSegments: React.FC<CustomerSegmentsProps> = ({ segments }) 
       
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         {segments.map((segment) => {
-          const Icon = getSegmentIcon(segment.id);
-          const color = getSegmentColor(segment.id);
+          const Icon = getSegmentIcon(segment.id, segment.name);
+          const color = getSegmentColor(segment.id, segment.name);
           
           return (
             <div key={segment.id} style={{ 

@@ -133,7 +133,7 @@ const CustomerSegmentation: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedSegment, setSelectedSegment] = useState<number | null>(null);
   const [filterPeriod, setFilterPeriod] = useState('all');
-  const [professionalData, setProfessionalData] = useState<ProfessionalSegmentationResponse | null>(null);
+  const [segmentationData, setSegmentationData] = useState<ProfessionalSegmentationResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Load professional segmentation data
@@ -146,7 +146,7 @@ const CustomerSegmentation: React.FC = () => {
       setIsLoading(true);
       setError(null);
       const result = await apiService.getProfessionalSegmentation();
-      setProfessionalData(result);
+      setSegmentationData(result);
       
       // Update mock data with real data if available
       if (result) {
@@ -181,9 +181,32 @@ const CustomerSegmentation: React.FC = () => {
       'Dormant/Churned': 'Inactive customers requiring re-engagement',
       'Loyal/Engaged': 'High-value customers with consistent engagement',
       'New/Recent but Inactive': 'New customers showing low activity',
-      'High-Engagement/Recent High-Value': 'Premium customers with recent high-value purchases'
+      'High-Engagement/Recent High-Value': 'Premium customers with recent high-value purchases',
+      'High-Value': 'Customers with high monetary value',
+      'Low-Value': 'Customers with lower monetary value',
+      'Recent': 'Customers with recent activity',
+      'Engaged': 'Highly engaged customers',
+      'Inactive': 'Customers showing low engagement',
+      'Moderate': 'Customers with moderate activity levels'
     };
-    return descriptions[name] || 'Customer segment';
+    
+    // Try exact match first
+    if (descriptions[name]) {
+      return descriptions[name];
+    }
+    
+    // Fallback to keyword-based description
+    if (name.includes('Dormant') || name.includes('Churned')) {
+      return 'Inactive customers requiring re-engagement';
+    } else if (name.includes('Loyal') || name.includes('Engaged')) {
+      return 'High-value customers with consistent engagement';
+    } else if (name.includes('High-Value') || name.includes('High-Engagement')) {
+      return 'Premium customers with recent high-value purchases';
+    } else if (name.includes('New') || name.includes('Recent')) {
+      return 'New customers showing low activity';
+    }
+    
+    return 'Customer segment';
   };
 
   const getSegmentColor = (name: string): string => {
@@ -191,9 +214,32 @@ const CustomerSegmentation: React.FC = () => {
       'Dormant/Churned': '#EF4444',
       'Loyal/Engaged': '#10B981',
       'New/Recent but Inactive': '#F59E0B',
-      'High-Engagement/Recent High-Value': '#8B5CF6'
+      'High-Engagement/Recent High-Value': '#8B5CF6',
+      'High-Value': '#8B5CF6',
+      'Low-Value': '#6B7280',
+      'Recent': '#06B6D4',
+      'Engaged': '#10B981',
+      'Inactive': '#EF4444',
+      'Moderate': '#F59E0B'
     };
-    return colors[name] || '#6B7280';
+    
+    // Try exact match first
+    if (colors[name]) {
+      return colors[name];
+    }
+    
+    // Fallback to keyword-based color
+    if (name.includes('Dormant') || name.includes('Churned')) {
+      return '#EF4444';
+    } else if (name.includes('Loyal') || name.includes('Engaged')) {
+      return '#10B981';
+    } else if (name.includes('High-Value') || name.includes('High-Engagement')) {
+      return '#8B5CF6';
+    } else if (name.includes('New') || name.includes('Recent')) {
+      return '#F59E0B';
+    }
+    
+    return '#6B7280'; // Default color
   };
 
   const handleRefresh = () => {
@@ -202,12 +248,12 @@ const CustomerSegmentation: React.FC = () => {
 
   const handleExport = () => {
     // Export professional segmentation data
-    if (professionalData) {
+    if (segmentationData) {
       const exportData = {
-        predictions: professionalData.predictions,
-        summary: professionalData.summary,
-        top_products_by_cluster: professionalData.top_products_by_cluster,
-        model_metrics: professionalData.model_metrics,
+        predictions: segmentationData.predictions,
+        summary: segmentationData.summary,
+        top_products_by_cluster: segmentationData.top_products_by_cluster,
+        model_metrics: segmentationData.model_metrics,
         exported_at: new Date().toISOString()
       };
       
@@ -623,7 +669,7 @@ const CustomerSegmentation: React.FC = () => {
       </div>
 
       {/* Professional Data Section */}
-      {professionalData && (
+      {segmentationData && (
         <div style={{ marginTop: '2rem' }}>
           <h2 style={{
             fontSize: '1.25rem',
@@ -662,7 +708,7 @@ const CustomerSegmentation: React.FC = () => {
                   fontWeight: '700',
                   color: '#10B981'
                 }}>
-                  {(professionalData.model_metrics.accuracy * 100).toFixed(1)}%
+                  {(segmentationData.model_metrics.accuracy * 100).toFixed(1)}%
                 </div>
               </div>
               <div>
@@ -676,9 +722,9 @@ const CustomerSegmentation: React.FC = () => {
                 <div style={{
                   fontSize: '1rem',
                   fontWeight: '600',
-                  color: professionalData.model_metrics.status === 'active' ? '#10B981' : '#F59E0B'
+                  color: segmentationData.model_metrics.status === 'active' ? '#10B981' : '#F59E0B'
                 }}>
-                  {professionalData.model_metrics.status}
+                  {segmentationData.model_metrics.status}
                 </div>
               </div>
               <div>
@@ -694,14 +740,14 @@ const CustomerSegmentation: React.FC = () => {
                   fontWeight: '500',
                   color: 'var(--text-primary)'
                 }}>
-                  {professionalData.workflow}
+                  {segmentationData.workflow}
                 </div>
               </div>
             </div>
           </Card>
 
           {/* Top Products by Cluster */}
-          {Object.keys(professionalData.top_products_by_cluster).length > 0 && (
+          {Object.keys(segmentationData.top_products_by_cluster).length > 0 && (
             <Card padding="lg">
               <h3 style={{
                 fontSize: '1rem',
@@ -716,7 +762,7 @@ const CustomerSegmentation: React.FC = () => {
                 gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
                 gap: '1.5rem'
               }}>
-                {Object.entries(professionalData.top_products_by_cluster).map(([clusterName, products]) => (
+                {Object.entries(segmentationData.top_products_by_cluster).map(([clusterName, products]) => (
                   <div key={clusterName}>
                     <h4 style={{
                       fontSize: '0.875rem',

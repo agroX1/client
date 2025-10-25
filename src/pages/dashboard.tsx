@@ -152,16 +152,51 @@ const Dashboard: React.FC = () => {
       
       // Update dashboard with real data
       if (segmentationData && retentionData) {
+        const segmentsCount = segmentationData.summary.clusters_found;
         const updatedData = {
           ...mockDashboardData,
           overview: {
             totalCustomers: segmentationData.summary.total_customers,
-            segments: segmentationData.summary.clusters_found,
+            segments: segmentsCount,
             retentionRate: Math.round(retentionData.summary.retention_rate * 100),
             avgLifetimeValue: 125000, // Keep mock value for now
             recommendations: 450, // Keep mock value for now
             insights: 12 // Keep mock value for now
           },
+          quickStats: [
+            {
+              title: 'Customer Segments',
+              value: segmentsCount.toString(),
+              description: 'Active segments identified',
+              icon: Users,
+              color: '#3B82F6',
+              path: '/dashboard/segmentation'
+            },
+            {
+              title: 'Retention Rate',
+              value: `${Math.round(retentionData.summary.retention_rate * 100)}%`,
+              description: 'Customers returning',
+              icon: TrendingUp,
+              color: '#10B981',
+              path: '/dashboard/retention'
+            },
+            {
+              title: 'Recommendations',
+              value: '450',
+              description: 'AI-powered suggestions',
+              icon: Target,
+              color: '#F59E0B',
+              path: '/dashboard/recommendations'
+            },
+            {
+              title: 'Insights Generated',
+              value: '12',
+              description: 'AI insights available',
+              icon: Eye,
+              color: '#8B5CF6',
+              path: '/dashboard/insights'
+            }
+          ],
           systemStatus: {
             models: {
               segmentation: {
@@ -229,44 +264,28 @@ const Dashboard: React.FC = () => {
       }}>
         <div style={{
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '0.75rem'
+          flexDirection: 'column',
+          gap: '1rem'
         }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.75rem'
-          }}>
-            <img 
-              src="/assets/logo.svg" 
-              alt="AgroX Logo" 
-              style={{ width: '2rem', height: '2rem' }}
-            />
-            <div>
-              <h1 style={{
-                fontSize: '1.5rem',
-                fontWeight: '700',
-                color: 'var(--text-primary)',
-                margin: 0,
-                marginBottom: '0.25rem'
-              }}>
-                Customer Intelligence Dashboard
-              </h1>
-              <p style={{
-                fontSize: '0.875rem',
-                color: 'var(--text-secondary)',
-                margin: 0
-              }}>
-                Welcome back, {userName.split(' ')[0]}! Here's your customer intelligence overview.
-              </p>
-            </div>
+          <div>
+            <h1 style={{
+              fontSize: 'clamp(1.25rem, 4vw, 1.5rem)',
+              fontWeight: '700',
+              color: 'var(--text-primary)',
+              margin: 0,
+              marginBottom: '0.25rem'
+            }}>
+              Customer Intelligence Dashboard
+            </h1>
+            
           </div>
           
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '1rem'
+            justifyContent: 'space-between',
+            gap: '0.75rem',
+            flexWrap: 'wrap'
           }}>
             {/* API Status */}
             <div style={{
@@ -276,7 +295,8 @@ const Dashboard: React.FC = () => {
               padding: '0.5rem 0.75rem',
               backgroundColor: apiStatus === 'connected' ? '#F0FDF4' : apiStatus === 'error' ? '#FEF2F2' : '#F9FAFB',
               border: `1px solid ${apiStatus === 'connected' ? '#BBF7D0' : apiStatus === 'error' ? '#FECACA' : '#E5E7EB'}`,
-              borderRadius: '0.5rem'
+              borderRadius: '0.5rem',
+              minWidth: 'fit-content'
             }}>
               <div style={{
                 width: '8px',
@@ -285,9 +305,10 @@ const Dashboard: React.FC = () => {
                 backgroundColor: apiStatus === 'connected' ? '#10B981' : apiStatus === 'error' ? '#EF4444' : '#6B7280'
               }} />
               <span style={{
-                fontSize: '0.75rem',
+                fontSize: 'clamp(0.625rem, 2vw, 0.75rem)',
                 fontWeight: '500',
-                color: apiStatus === 'connected' ? '#059669' : apiStatus === 'error' ? '#DC2626' : '#6B7280'
+                color: apiStatus === 'connected' ? '#059669' : apiStatus === 'error' ? '#DC2626' : '#6B7280',
+                whiteSpace: 'nowrap'
               }}>
                 {apiStatus === 'connected' ? 'API Connected' : apiStatus === 'error' ? 'API Error' : 'API Disconnected'}
               </span>
@@ -307,11 +328,12 @@ const Dashboard: React.FC = () => {
                 borderRadius: '0.5rem',
                 cursor: isLoading ? 'not-allowed' : 'pointer',
                 opacity: isLoading ? 0.6 : 1,
-                transition: 'all 0.2s ease'
+                transition: 'all 0.2s ease',
+                minWidth: 'fit-content'
               }}
             >
               <RefreshCw size={16} className={isLoading ? 'animate-spin' : ''} />
-              <span style={{ fontSize: '0.875rem', fontWeight: '500' }}>
+              <span style={{ fontSize: 'clamp(0.625rem, 2vw, 0.875rem)', fontWeight: '500' }}>
                 Refresh
               </span>
             </button>
@@ -325,9 +347,12 @@ const Dashboard: React.FC = () => {
           backgroundColor: 'var(--bg-primary)',
           border: '1px solid var(--border-color)',
           borderRadius: '0.375rem',
-          fontSize: '0.75rem',
+          fontSize: 'clamp(0.625rem, 2vw, 0.75rem)',
           color: 'var(--text-secondary)',
-          alignSelf: 'flex-start'
+          alignSelf: 'flex-start',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap'
         }}>
           <Activity size={14} />
           <span>Last updated: {data.systemStatus.lastUpdate}</span>
@@ -337,8 +362,8 @@ const Dashboard: React.FC = () => {
       {/* Key Metrics Overview */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-        gap: '1rem',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+        gap: '0.75rem',
         marginBottom: '1.5rem'
       }}>
         <Card padding="md">
@@ -350,7 +375,7 @@ const Dashboard: React.FC = () => {
           }}>
             <Users size={18} style={{ color: '#3B82F6' }} />
             <h3 style={{
-              fontSize: '0.875rem',
+              fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
               fontWeight: '600',
               color: 'var(--text-primary)',
               margin: 0
@@ -359,7 +384,7 @@ const Dashboard: React.FC = () => {
             </h3>
           </div>
           <div style={{
-            fontSize: '1.5rem',
+            fontSize: 'clamp(1.25rem, 4vw, 1.5rem)',
             fontWeight: '700',
             color: '#3B82F6',
             marginBottom: '0.25rem'
@@ -367,7 +392,7 @@ const Dashboard: React.FC = () => {
             {data.overview.totalCustomers.toLocaleString()}
           </div>
           <div style={{
-            fontSize: '0.75rem',
+            fontSize: 'clamp(0.625rem, 2vw, 0.75rem)',
             color: 'var(--text-secondary)'
           }}>
             Active customer base
@@ -383,7 +408,7 @@ const Dashboard: React.FC = () => {
           }}>
             <BarChart3 size={18} style={{ color: '#10B981' }} />
             <h3 style={{
-              fontSize: '0.875rem',
+              fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
               fontWeight: '600',
               color: 'var(--text-primary)',
               margin: 0
@@ -392,7 +417,7 @@ const Dashboard: React.FC = () => {
             </h3>
           </div>
           <div style={{
-            fontSize: '1.5rem',
+            fontSize: 'clamp(1.25rem, 4vw, 1.5rem)',
             fontWeight: '700',
             color: '#10B981',
             marginBottom: '0.25rem'
@@ -400,7 +425,7 @@ const Dashboard: React.FC = () => {
             ₦{(data.overview.avgLifetimeValue / 1000).toFixed(0)}k
           </div>
           <div style={{
-            fontSize: '0.75rem',
+            fontSize: 'clamp(0.625rem, 2vw, 0.75rem)',
             color: 'var(--text-secondary)'
           }}>
             Per customer
@@ -416,7 +441,7 @@ const Dashboard: React.FC = () => {
           }}>
             <Target size={18} style={{ color: '#F59E0B' }} />
             <h3 style={{
-              fontSize: '0.875rem',
+              fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
               fontWeight: '600',
               color: 'var(--text-primary)',
               margin: 0
@@ -425,7 +450,7 @@ const Dashboard: React.FC = () => {
             </h3>
           </div>
           <div style={{
-            fontSize: '1.5rem',
+            fontSize: 'clamp(1.25rem, 4vw, 1.5rem)',
             fontWeight: '700',
             color: '#F59E0B',
             marginBottom: '0.25rem'
@@ -433,7 +458,7 @@ const Dashboard: React.FC = () => {
             {Object.values(data.systemStatus.models).filter(model => model.status === 'active').length}
           </div>
           <div style={{
-            fontSize: '0.75rem',
+            fontSize: 'clamp(0.625rem, 2vw, 0.75rem)',
             color: 'var(--text-secondary)'
           }}>
             ML models running
@@ -449,7 +474,7 @@ const Dashboard: React.FC = () => {
           }}>
             <Eye size={18} style={{ color: '#8B5CF6' }} />
             <h3 style={{
-              fontSize: '0.875rem',
+              fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
               fontWeight: '600',
               color: 'var(--text-primary)',
               margin: 0
@@ -458,7 +483,7 @@ const Dashboard: React.FC = () => {
             </h3>
           </div>
           <div style={{
-            fontSize: '1.5rem',
+            fontSize: 'clamp(1.25rem, 4vw, 1.5rem)',
             fontWeight: '700',
             color: '#8B5CF6',
             marginBottom: '0.25rem'
@@ -466,7 +491,7 @@ const Dashboard: React.FC = () => {
             {data.overview.insights}
           </div>
           <div style={{
-            fontSize: '0.75rem',
+            fontSize: 'clamp(0.625rem, 2vw, 0.75rem)',
             color: 'var(--text-secondary)'
           }}>
             Generated insights
@@ -477,7 +502,7 @@ const Dashboard: React.FC = () => {
       {/* Quick Navigation Cards */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
         gap: '0.75rem',
         marginBottom: '1.5rem'
       }}>
@@ -517,7 +542,7 @@ const Dashboard: React.FC = () => {
                   </div>
                   
                   <div style={{
-                    fontSize: '1.5rem',
+                    fontSize: 'clamp(1.25rem, 4vw, 1.5rem)',
                     fontWeight: '700',
                     color: stat.color,
                     marginBottom: '0.25rem'
@@ -527,7 +552,7 @@ const Dashboard: React.FC = () => {
                   
                   <div style={{ textAlign: 'center' }}>
                     <h3 style={{
-                      fontSize: '0.75rem',
+                      fontSize: 'clamp(0.625rem, 2vw, 0.75rem)',
                       fontWeight: '600',
                       color: 'var(--text-primary)',
                       margin: 0,
@@ -536,7 +561,7 @@ const Dashboard: React.FC = () => {
                       {stat.title}
                     </h3>
                     <p style={{
-                      fontSize: '0.625rem',
+                      fontSize: 'clamp(0.5rem, 1.5vw, 0.625rem)',
                       color: 'var(--text-secondary)',
                       margin: 0,
                       lineHeight: '1.2'
@@ -556,8 +581,8 @@ const Dashboard: React.FC = () => {
       {/* Recent Insights and Top Segments */}
       <div style={{ 
         display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-        gap: '1rem',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+        gap: '0.75rem',
         marginBottom: '1.5rem'
       }}>
         {/* Recent AI Insights */}
@@ -570,7 +595,7 @@ const Dashboard: React.FC = () => {
           }}>
             <Eye size={20} style={{ color: '#8B5CF6' }} />
             <h3 style={{
-              fontSize: '1.25rem',
+              fontSize: 'clamp(1rem, 3vw, 1.25rem)',
               fontWeight: '600',
               color: 'var(--text-primary)',
               margin: 0
@@ -597,7 +622,7 @@ const Dashboard: React.FC = () => {
                   marginBottom: '0.5rem'
                 }}>
                   <h4 style={{
-                    fontSize: '0.875rem',
+                    fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
                     fontWeight: '600',
                     color: 'var(--text-primary)',
                     margin: 0
@@ -626,7 +651,7 @@ const Dashboard: React.FC = () => {
                   </div>
                 </div>
                 <p style={{
-                  fontSize: '0.75rem',
+                  fontSize: 'clamp(0.625rem, 2vw, 0.75rem)',
                   color: 'var(--text-secondary)',
                   margin: 0,
                   marginBottom: '0.5rem',
@@ -635,7 +660,7 @@ const Dashboard: React.FC = () => {
                   {insight.description}
                 </p>
                 <div style={{
-                  fontSize: '0.75rem',
+                  fontSize: 'clamp(0.625rem, 2vw, 0.75rem)',
                   color: 'var(--text-secondary)'
                 }}>
                   Confidence: {(insight.confidence * 100).toFixed(0)}%
@@ -655,7 +680,7 @@ const Dashboard: React.FC = () => {
           }}>
             <Users size={20} style={{ color: '#3B82F6' }} />
             <h3 style={{
-              fontSize: '1.25rem',
+              fontSize: 'clamp(1rem, 3vw, 1.25rem)',
               fontWeight: '600',
               color: 'var(--text-primary)',
               margin: 0
@@ -687,7 +712,7 @@ const Dashboard: React.FC = () => {
                   }} />
                   <div>
                     <h4 style={{
-                      fontSize: '0.875rem',
+                      fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
                       fontWeight: '600',
                       color: 'var(--text-primary)',
                       margin: 0,
@@ -696,7 +721,7 @@ const Dashboard: React.FC = () => {
                       {segment.name}
                     </h4>
                     <p style={{
-                      fontSize: '0.75rem',
+                      fontSize: 'clamp(0.625rem, 2vw, 0.75rem)',
                       color: 'var(--text-secondary)',
                       margin: 0
                     }}>
@@ -708,14 +733,14 @@ const Dashboard: React.FC = () => {
                   textAlign: 'right'
                 }}>
                   <div style={{
-                    fontSize: '0.875rem',
+                    fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
                     fontWeight: '600',
                     color: 'var(--text-primary)'
                   }}>
                     ₦{(segment.avgLifetimeValue / 1000).toFixed(0)}k
                   </div>
                   <div style={{
-                    fontSize: '0.75rem',
+                    fontSize: 'clamp(0.625rem, 2vw, 0.75rem)',
                     color: 'var(--text-secondary)'
                   }}>
                     Avg LTV
@@ -737,7 +762,7 @@ const Dashboard: React.FC = () => {
         }}>
           <Activity size={20} style={{ color: '#10B981' }} />
           <h3 style={{
-            fontSize: '1.25rem',
+            fontSize: 'clamp(1rem, 3vw, 1.25rem)',
             fontWeight: '600',
             color: 'var(--text-primary)',
             margin: 0
@@ -747,8 +772,8 @@ const Dashboard: React.FC = () => {
         </div>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-          gap: '0.75rem'
+          gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+          gap: '0.5rem'
         }}>
           {Object.entries(data.systemStatus.models).map(([modelName, model]) => (
             <div key={modelName} style={{
@@ -771,7 +796,7 @@ const Dashboard: React.FC = () => {
                   <AlertTriangle size={16} style={{ color: '#F59E0B' }} />
                 )}
                 <span style={{
-                  fontSize: '0.875rem',
+                  fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
                   fontWeight: '600',
                   color: 'var(--text-primary)',
                   textTransform: 'capitalize'
@@ -780,14 +805,14 @@ const Dashboard: React.FC = () => {
                 </span>
               </div>
               <div style={{
-                fontSize: '0.75rem',
+                fontSize: 'clamp(0.625rem, 2vw, 0.75rem)',
                 color: 'var(--text-secondary)',
                 marginBottom: '0.25rem'
               }}>
                 Accuracy: {(model.accuracy * 100).toFixed(0)}%
               </div>
               <div style={{
-                fontSize: '0.75rem',
+                fontSize: 'clamp(0.625rem, 2vw, 0.75rem)',
                 fontWeight: '600',
                 color: model.status === 'active' ? '#10B981' : '#F59E0B'
               }}>
@@ -801,12 +826,12 @@ const Dashboard: React.FC = () => {
           padding: '1rem',
           backgroundColor: 'var(--bg-secondary)',
           borderRadius: '0.5rem',
-          fontSize: '0.875rem',
+          fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
           color: 'var(--text-secondary)',
           textAlign: 'center'
         }}>
           Next model update: {data.systemStatus.nextUpdate}
-      </div>
+        </div>
       </Card>
     </DashboardLayout>
   );

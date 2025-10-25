@@ -16,6 +16,7 @@ import {
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { Card } from '../components/ui/Card';
 import { Bar, Line, Doughnut, Scatter } from 'react-chartjs-2';
+import { apiService } from '../services/api';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -178,17 +179,98 @@ const CustomerInsightsDashboard: React.FC = () => {
   const [data, setData] = useState(mockInsightsData);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedTimeframe, setSelectedTimeframe] = useState('12m');
+  const [dynamicInsights, setDynamicInsights] = useState<any>(null);
+
+  const loadDynamicInsights = async () => {
+    try {
+      setIsLoading(true);
+      const insightsData = await apiService.generateDynamicInsights(undefined, 100, true);
+      setDynamicInsights(insightsData);
+      
+      // Update the insights with dynamic data
+      if (insightsData && insightsData.insights) {
+        // Generate dynamic segments from segmentation data
+        let dynamicSegments = data.customerSegments; // Default fallback
+        
+        if (insightsData.segmentation_summary && insightsData.segmentation_summary.cluster_distribution) {
+          const clusterDistribution = insightsData.segmentation_summary.cluster_distribution;
+          const totalCustomers = insightsData.segmentation_summary.total_customers;
+          
+          dynamicSegments = Object.entries(clusterDistribution).map(([segmentName, count], index) => ({
+            segment: segmentName,
+            count: count as number,
+            percentage: ((count as number) / totalCustomers) * 100,
+            avgLifetimeValue: Math.floor(Math.random() * 200000) + 50000, // Mock data
+            avgOrderFrequency: Math.floor(Math.random() * 5) + 1, // Mock data
+            satisfaction: Math.random() * 2 + 3, // Mock data between 3-5
+            color: getSegmentColor(segmentName)
+          }));
+        }
+        
+        const updatedData = {
+          ...data,
+          insights: insightsData.insights.map((insight: any) => ({
+            type: insight.type,
+            title: insight.title,
+            description: insight.description,
+            impact: insight.impact,
+            confidence: insight.confidence
+          })),
+          customerSegments: dynamicSegments
+        };
+        setData(updatedData);
+      }
+    } catch (error) {
+      console.error('Error loading dynamic insights:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getSegmentColor = (segmentName: string): string => {
+    const colorMap: Record<string, string> = {
+      'Dormant/Churned': '#EF4444',
+      'Loyal/Engaged': '#10B981',
+      'New/Recent but Inactive': '#F59E0B',
+      'High-Engagement/Recent High-Value': '#3B82F6',
+      'High-Value': '#8B5CF6',
+      'Low-Value': '#6B7280',
+      'Recent': '#06B6D4',
+      'Engaged': '#10B981',
+      'Inactive': '#EF4444',
+      'Moderate': '#F59E0B'
+    };
+    
+    // Try exact match first
+    if (colorMap[segmentName]) {
+      return colorMap[segmentName];
+    }
+    
+    // Fallback to keyword-based color
+    if (segmentName.includes('Dormant') || segmentName.includes('Churned')) {
+      return '#EF4444';
+    } else if (segmentName.includes('Loyal') || segmentName.includes('Engaged')) {
+      return '#10B981';
+    } else if (segmentName.includes('High-Value') || segmentName.includes('High-Engagement')) {
+      return '#3B82F6';
+    } else if (segmentName.includes('New') || segmentName.includes('Recent')) {
+      return '#F59E0B';
+    }
+    
+    return '#6B7280'; // Default color
+  };
 
   const handleRefresh = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
+    loadDynamicInsights();
   };
 
   const handleExport = () => {
     console.log('Exporting insights data...');
   };
+
+  useEffect(() => {
+    loadDynamicInsights();
+  }, []);
 
   // Prepare chart data
   const journeyData = {
