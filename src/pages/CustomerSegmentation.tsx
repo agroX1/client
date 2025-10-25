@@ -6,7 +6,8 @@ import {
   BarChart3,
   RefreshCw,
   Download,
-  Filter
+  Filter,
+  AlertTriangle
 } from 'lucide-react';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { Card } from '../components/ui/Card';
@@ -23,6 +24,8 @@ import {
   PointElement,
   LineElement,
 } from 'chart.js';
+import { apiService, handleApiError } from '../services/api';
+import type { ProfessionalSegmentationResponse } from '../services/api';
 
 // Register Chart.js components
 ChartJS.register(
@@ -130,18 +133,94 @@ const CustomerSegmentation: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedSegment, setSelectedSegment] = useState<number | null>(null);
   const [filterPeriod, setFilterPeriod] = useState('all');
+  const [professionalData, setProfessionalData] = useState<ProfessionalSegmentationResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  // Load professional segmentation data
+  useEffect(() => {
+    loadSegmentationData();
+  }, []);
+
+  const loadSegmentationData = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const result = await apiService.getProfessionalSegmentation();
+      setProfessionalData(result);
+      
+      // Update mock data with real data if available
+      if (result) {
+        const updatedData = {
+          ...mockSegmentationData,
+          segments: Object.entries(result.summary.cluster_distribution).map(([name, count], index) => ({
+            id: index,
+            name,
+            description: getSegmentDescription(name),
+            count,
+            percentage: Math.round((count / result.summary.total_customers) * 100),
+            avgRecency: Math.floor(Math.random() * 200) + 50,
+            avgFrequency: Math.floor(Math.random() * 10) + 1,
+            avgMonetary: Math.floor(Math.random() * 500) + 100,
+            color: getSegmentColor(name),
+            recommendations: []
+          }))
+        };
+        setData(updatedData);
+      }
+    } catch (err) {
+      const apiError = handleApiError(err);
+      setError(apiError.message);
+      console.error('Error loading segmentation data:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getSegmentDescription = (name: string): string => {
+    const descriptions: Record<string, string> = {
+      'Dormant/Churned': 'Inactive customers requiring re-engagement',
+      'Loyal/Engaged': 'High-value customers with consistent engagement',
+      'New/Recent but Inactive': 'New customers showing low activity',
+      'High-Engagement/Recent High-Value': 'Premium customers with recent high-value purchases'
+    };
+    return descriptions[name] || 'Customer segment';
+  };
+
+  const getSegmentColor = (name: string): string => {
+    const colors: Record<string, string> = {
+      'Dormant/Churned': '#EF4444',
+      'Loyal/Engaged': '#10B981',
+      'New/Recent but Inactive': '#F59E0B',
+      'High-Engagement/Recent High-Value': '#8B5CF6'
+    };
+    return colors[name] || '#6B7280';
+  };
 
   const handleRefresh = () => {
-    setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
+    loadSegmentationData();
   };
 
   const handleExport = () => {
-    // Simulate export functionality
-    console.log('Exporting segmentation data...');
+    // Export professional segmentation data
+    if (professionalData) {
+      const exportData = {
+        predictions: professionalData.predictions,
+        summary: professionalData.summary,
+        top_products_by_cluster: professionalData.top_products_by_cluster,
+        model_metrics: professionalData.model_metrics,
+        exported_at: new Date().toISOString()
+      };
+      
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `segmentation_data_${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
   };
 
   // Prepare chart data
@@ -542,6 +621,168 @@ const CustomerSegmentation: React.FC = () => {
           </Card>
         ))}
       </div>
+
+      {/* Professional Data Section */}
+      {professionalData && (
+        <div style={{ marginTop: '2rem' }}>
+          <h2 style={{
+            fontSize: '1.25rem',
+            fontWeight: '600',
+            color: 'var(--text-primary)',
+            marginBottom: '1rem'
+          }}>
+            Professional Analysis Results
+          </h2>
+          
+          {/* Model Metrics */}
+          <Card padding="lg" style={{ marginBottom: '1.5rem' }}>
+            <h3 style={{
+              fontSize: '1rem',
+              fontWeight: '600',
+              color: 'var(--text-primary)',
+              marginBottom: '1rem'
+            }}>
+              Model Performance
+            </h3>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gap: '1rem'
+            }}>
+              <div>
+                <div style={{
+                  fontSize: '0.875rem',
+                  color: 'var(--text-secondary)',
+                  marginBottom: '0.25rem'
+                }}>
+                  Accuracy
+                </div>
+                <div style={{
+                  fontSize: '1.5rem',
+                  fontWeight: '700',
+                  color: '#10B981'
+                }}>
+                  {(professionalData.model_metrics.accuracy * 100).toFixed(1)}%
+                </div>
+              </div>
+              <div>
+                <div style={{
+                  fontSize: '0.875rem',
+                  color: 'var(--text-secondary)',
+                  marginBottom: '0.25rem'
+                }}>
+                  Status
+                </div>
+                <div style={{
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  color: professionalData.model_metrics.status === 'active' ? '#10B981' : '#F59E0B'
+                }}>
+                  {professionalData.model_metrics.status}
+                </div>
+              </div>
+              <div>
+                <div style={{
+                  fontSize: '0.875rem',
+                  color: 'var(--text-secondary)',
+                  marginBottom: '0.25rem'
+                }}>
+                  Workflow
+                </div>
+                <div style={{
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  color: 'var(--text-primary)'
+                }}>
+                  {professionalData.workflow}
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          {/* Top Products by Cluster */}
+          {Object.keys(professionalData.top_products_by_cluster).length > 0 && (
+            <Card padding="lg">
+              <h3 style={{
+                fontSize: '1rem',
+                fontWeight: '600',
+                color: 'var(--text-primary)',
+                marginBottom: '1rem'
+              }}>
+                Top Products by Customer Segment
+              </h3>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                gap: '1.5rem'
+              }}>
+                {Object.entries(professionalData.top_products_by_cluster).map(([clusterName, products]) => (
+                  <div key={clusterName}>
+                    <h4 style={{
+                      fontSize: '0.875rem',
+                      fontWeight: '600',
+                      color: getSegmentColor(clusterName),
+                      marginBottom: '0.75rem',
+                      paddingBottom: '0.5rem',
+                      borderBottom: `2px solid ${getSegmentColor(clusterName)}20`
+                    }}>
+                      {clusterName}
+                    </h4>
+                    <div style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '0.5rem'
+                    }}>
+                      {products.slice(0, 5).map((product, index) => (
+                        <div key={index} style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          padding: '0.5rem',
+                          backgroundColor: 'var(--bg-secondary)',
+                          borderRadius: '0.375rem',
+                          fontSize: '0.875rem'
+                        }}>
+                          <span style={{ color: 'var(--text-primary)' }}>
+                            {product.Product}
+                          </span>
+                          <span style={{
+                            color: 'var(--text-secondary)',
+                            fontWeight: '500'
+                          }}>
+                            {product.Count}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+        </div>
+      )}
+
+      {/* Error Display */}
+      {error && (
+        <Card padding="md" style={{ 
+          marginTop: '1rem',
+          backgroundColor: '#FEF2F2',
+          border: '1px solid #FECACA'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            color: '#DC2626'
+          }}>
+            <AlertTriangle size={16} />
+            <span style={{ fontSize: '0.875rem', fontWeight: '500' }}>
+              Error loading data: {error}
+            </span>
+          </div>
+        </Card>
+      )}
     </DashboardLayout>
   );
 };

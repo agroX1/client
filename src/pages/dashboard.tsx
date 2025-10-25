@@ -8,10 +8,12 @@ import {
   BarChart3,
   Activity,
   CheckCircle,
-  AlertTriangle
+  AlertTriangle,
+  RefreshCw
 } from 'lucide-react';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { Card } from '../components/ui/Card';
+import { apiService, handleApiError } from '../services/api';
 
 // Mock data for Customer Intelligence Dashboard Overview
 const mockDashboardData = {
@@ -118,22 +120,78 @@ const mockDashboardData = {
 };
 
 const Dashboard: React.FC = () => {
-  const [data] = useState(mockDashboardData);
+  const [data, setData] = useState(mockDashboardData);
   const [isLoading, setIsLoading] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const [apiStatus, setApiStatus] = useState<'connected' | 'disconnected' | 'error'>('disconnected');
   
   // Get user info from localStorage
   const userName = localStorage.getItem('userName') || 'User';
 
+  // Load real-time data from professional API
   useEffect(() => {
-    // Simulate data loading
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-
-    return () => {
-      clearTimeout(timer);
-    };
+    loadDashboardData();
+    // Set up periodic refresh every 5 minutes
+    const interval = setInterval(loadDashboardData, 5 * 60 * 1000);
+    return () => clearInterval(interval);
   }, []);
+
+  const loadDashboardData = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Test API connection
+      await apiService.healthCheck();
+      setApiStatus('connected');
+      
+      // Load segmentation data
+      const segmentationData = await apiService.getProfessionalSegmentation();
+      
+      // Load retention data
+      const retentionData = await apiService.getProfessionalRetention();
+      
+      // Update dashboard with real data
+      if (segmentationData && retentionData) {
+        const updatedData = {
+          ...mockDashboardData,
+          overview: {
+            totalCustomers: segmentationData.summary.total_customers,
+            segments: segmentationData.summary.clusters_found,
+            retentionRate: Math.round(retentionData.summary.retention_rate * 100),
+            avgLifetimeValue: 125000, // Keep mock value for now
+            recommendations: 450, // Keep mock value for now
+            insights: 12 // Keep mock value for now
+          },
+          systemStatus: {
+            models: {
+              segmentation: {
+                status: segmentationData.model_metrics.status,
+                accuracy: segmentationData.model_metrics.accuracy
+              },
+              retention: {
+                status: retentionData.model_metrics.status,
+                accuracy: retentionData.model_metrics.accuracy
+              },
+              recommendations: { status: 'training', accuracy: 0.78 }
+            },
+            lastUpdate: new Date().toLocaleString(),
+            nextUpdate: new Date(Date.now() + 5 * 60 * 1000).toLocaleString()
+          }
+        };
+        setData(updatedData);
+        setLastUpdated(new Date());
+      }
+    } catch (err) {
+      setApiStatus('error');
+      console.error('Error loading dashboard data:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRefresh = () => {
+    loadDashboardData();
+    };
 
   if (isLoading) {
     return (
@@ -169,23 +227,95 @@ const Dashboard: React.FC = () => {
         paddingBottom: '1rem',
         borderBottom: '1px solid var(--border-color)'
       }}>
-        <div>
-          <h1 style={{
-            fontSize: '1.5rem',
-            fontWeight: '700',
-            color: 'var(--text-primary)',
-            margin: 0,
-            marginBottom: '0.25rem'
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '0.75rem'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem'
           }}>
-            Customer Intelligence Dashboard
-          </h1>
-          <p style={{
-            fontSize: '0.875rem',
-            color: 'var(--text-secondary)',
-            margin: 0
+            <img 
+              src="/assets/logo.svg" 
+              alt="AgroX Logo" 
+              style={{ width: '2rem', height: '2rem' }}
+            />
+            <div>
+              <h1 style={{
+                fontSize: '1.5rem',
+                fontWeight: '700',
+                color: 'var(--text-primary)',
+                margin: 0,
+                marginBottom: '0.25rem'
+              }}>
+                Customer Intelligence Dashboard
+              </h1>
+              <p style={{
+                fontSize: '0.875rem',
+                color: 'var(--text-secondary)',
+                margin: 0
+              }}>
+                Welcome back, {userName.split(' ')[0]}! Here's your customer intelligence overview.
+              </p>
+            </div>
+          </div>
+          
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1rem'
           }}>
-            Welcome back, {userName.split(' ')[0]}! Here's your customer intelligence overview.
-          </p>
+            {/* API Status */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              padding: '0.5rem 0.75rem',
+              backgroundColor: apiStatus === 'connected' ? '#F0FDF4' : apiStatus === 'error' ? '#FEF2F2' : '#F9FAFB',
+              border: `1px solid ${apiStatus === 'connected' ? '#BBF7D0' : apiStatus === 'error' ? '#FECACA' : '#E5E7EB'}`,
+              borderRadius: '0.5rem'
+            }}>
+              <div style={{
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                backgroundColor: apiStatus === 'connected' ? '#10B981' : apiStatus === 'error' ? '#EF4444' : '#6B7280'
+              }} />
+              <span style={{
+                fontSize: '0.75rem',
+                fontWeight: '500',
+                color: apiStatus === 'connected' ? '#059669' : apiStatus === 'error' ? '#DC2626' : '#6B7280'
+              }}>
+                {apiStatus === 'connected' ? 'API Connected' : apiStatus === 'error' ? 'API Error' : 'API Disconnected'}
+              </span>
+            </div>
+            
+            {/* Refresh Button */}
+            <button
+              onClick={handleRefresh}
+              disabled={isLoading}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.5rem 0.75rem',
+                backgroundColor: 'var(--bg-primary)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '0.5rem',
+                cursor: isLoading ? 'not-allowed' : 'pointer',
+                opacity: isLoading ? 0.6 : 1,
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <RefreshCw size={16} className={isLoading ? 'animate-spin' : ''} />
+              <span style={{ fontSize: '0.875rem', fontWeight: '500' }}>
+                Refresh
+              </span>
+            </button>
+          </div>
         </div>
         <div style={{
           display: 'flex',

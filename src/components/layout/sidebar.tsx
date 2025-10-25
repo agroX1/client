@@ -76,23 +76,35 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCollapseChange }) =>
           justifyContent: isCollapsed ? 'center' : 'flex-start'
         }}>
           {isCollapsed ? (
-            <button
-              onClick={handleCollapseToggle}
-              style={{
-                padding: '0.5rem',
-                backgroundColor: 'transparent',
-                color: 'var(--text-secondary)',
-                border: 'none',
-                borderRadius: '0.5rem',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '100%'
-              }}
-            >
-              <Menu size={24} />
-            </button>
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '0.5rem',
+              width: '100%'
+            }}>
+              <img 
+                src="/assets/logo.svg" 
+                alt="AgroX Logo" 
+                style={{ width: '1.5rem', height: '1.5rem' }}
+              />
+              <button
+                onClick={handleCollapseToggle}
+                style={{
+                  padding: '0.5rem',
+                  backgroundColor: 'transparent',
+                  color: 'var(--text-secondary)',
+                  border: 'none',
+                  borderRadius: '0.5rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                <Menu size={20} />
+              </button>
+            </div>
           ) : (
             <>
               <img 

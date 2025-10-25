@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-// API configuration
+// API configuration - updated to ensure proper exports
 export const API_BASE_URL = 'http://localhost:8000';
 const API_KEY = 'agrox-api-key-2024'; // Default API key
 
@@ -45,6 +45,75 @@ export interface Prediction {
   confidence?: number;
   features_used: string[];
   created_at: string;
+}
+
+// Professional API Types following Test_save_prediction.ipynb workflow
+export interface ProfessionalSegmentationPrediction {
+  customer_id: string;
+  predicted_cluster: number;
+  cluster_description: string;
+  confidence: number;
+  features_used: string[];
+  model_version: string;
+}
+
+export interface ProfessionalRetentionPrediction {
+  customer_id: string;
+  predicted_retention: number;
+  retention_status: string;
+  confidence: number;
+  features_used: string[];
+  model_version: string;
+}
+
+export interface TopProductsByCluster {
+  [clusterName: string]: Array<{
+    Product: string;
+    Count: number;
+  }>;
+}
+
+export interface TopProductsByRetentionClass {
+  [retentionClass: string]: Array<{
+    Product: string;
+    Count: number;
+  }>;
+}
+
+export interface ProfessionalSegmentationResponse {
+  predictions: ProfessionalSegmentationPrediction[];
+  summary: {
+    total_customers: number;
+    clusters_found: number;
+    cluster_distribution: Record<string, number>;
+    features_used: string[];
+    model_type: string;
+  };
+  top_products_by_cluster: TopProductsByCluster;
+  model_metrics: {
+    accuracy: number;
+    status: string;
+    last_prediction: string;
+  };
+  workflow: string;
+}
+
+export interface ProfessionalRetentionResponse {
+  predictions: ProfessionalRetentionPrediction[];
+  summary: {
+    total_customers: number;
+    retention_distribution: Record<string, number>;
+    retention_rate: number;
+    features_used: string[];
+    model_type: string;
+  };
+  top_products_by_retention_class: TopProductsByRetentionClass;
+  model_metrics: {
+    accuracy: number;
+    status: string;
+    last_prediction: string;
+  };
+  workflow: string;
 }
 
 export interface DataUploadResponse {
@@ -168,6 +237,56 @@ export class AgroXApiService {
   async listModels() {
     const response = await apiClient.get('/api/models');
     return response.data;
+  }
+
+  // Professional ML Endpoints following Test_save_prediction.ipynb workflow
+  
+  // Professional Customer Segmentation
+  async getProfessionalSegmentation(
+    customerIds?: string[],
+    batchSize: number = 100
+  ): Promise<ProfessionalSegmentationResponse> {
+    const response = await apiClient.post('/api/ml/customer-segmentation', {
+      customer_ids: customerIds,
+      batch_size: batchSize,
+    });
+    return response.data.data; // Extract data from ResponseModel wrapper
+  }
+
+  // Professional Customer Retention
+  async getProfessionalRetention(
+    customerIds?: string[],
+    batchSize: number = 100
+  ): Promise<ProfessionalRetentionResponse> {
+    const response = await apiClient.post('/api/ml/customer-retention', {
+      customer_ids: customerIds,
+      batch_size: batchSize,
+    });
+    return response.data.data; // Extract data from ResponseModel wrapper
+  }
+
+  // Legacy segmentation endpoint
+  async getSegmentationPredictions(
+    customerIds?: string[],
+    batchSize: number = 100
+  ) {
+    const response = await apiClient.post('/api/predictions/segmentation', {
+      customer_ids: customerIds,
+      batch_size: batchSize,
+    });
+    return response.data.data;
+  }
+
+  // Legacy retention endpoint
+  async getRetentionPredictions(
+    customerIds?: string[],
+    batchSize: number = 100
+  ) {
+    const response = await apiClient.post('/api/predictions/retention', {
+      customer_ids: customerIds,
+      batch_size: batchSize,
+    });
+    return response.data.data;
   }
 
   // Get customer data (for analytics)

@@ -25,6 +25,8 @@ import {
   PointElement,
   LineElement,
 } from 'chart.js';
+import { apiService, handleApiError } from '../services/api';
+import type { ProfessionalRetentionResponse } from '../services/api';
 
 // Register Chart.js components
 ChartJS.register(
@@ -146,16 +148,67 @@ const CustomerRetention: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedTimeframe, setSelectedTimeframe] = useState('12m');
   const [selectedRiskLevel, setSelectedRiskLevel] = useState('all');
+  const [professionalData, setProfessionalData] = useState<ProfessionalRetentionResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  // Load professional retention data
+  useEffect(() => {
+    loadRetentionData();
+  }, []);
+
+  const loadRetentionData = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const result = await apiService.getProfessionalRetention();
+      setProfessionalData(result);
+      
+      // Update mock data with real data if available
+      if (result) {
+        const updatedData = {
+          ...mockRetentionData,
+          overallMetrics: {
+            ...mockRetentionData.overallMetrics,
+            totalCustomers: result.summary.total_customers,
+            retentionRate: Math.round(result.summary.retention_rate * 100)
+          }
+        };
+        setData(updatedData);
+      }
+    } catch (err) {
+      const apiError = handleApiError(err);
+      setError(apiError.message);
+      console.error('Error loading retention data:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleRefresh = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
+    loadRetentionData();
   };
 
   const handleExport = () => {
-    console.log('Exporting retention data...');
+    // Export professional retention data
+    if (professionalData) {
+      const exportData = {
+        predictions: professionalData.predictions,
+        summary: professionalData.summary,
+        top_products_by_retention_class: professionalData.top_products_by_retention_class,
+        model_metrics: professionalData.model_metrics,
+        exported_at: new Date().toISOString()
+      };
+      
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `retention_data_${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
   };
 
   // Prepare chart data
@@ -741,6 +794,168 @@ const CustomerRetention: React.FC = () => {
           </table>
         </div>
       </Card>
+
+      {/* Professional Data Section */}
+      {professionalData && (
+        <div style={{ marginTop: '2rem' }}>
+          <h2 style={{
+            fontSize: '1.25rem',
+            fontWeight: '600',
+            color: 'var(--text-primary)',
+            marginBottom: '1rem'
+          }}>
+            Professional Analysis Results
+          </h2>
+          
+          {/* Model Metrics */}
+          <Card padding="lg" style={{ marginBottom: '1.5rem' }}>
+            <h3 style={{
+              fontSize: '1rem',
+              fontWeight: '600',
+              color: 'var(--text-primary)',
+              marginBottom: '1rem'
+            }}>
+              Model Performance
+            </h3>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gap: '1rem'
+            }}>
+              <div>
+                <div style={{
+                  fontSize: '0.875rem',
+                  color: 'var(--text-secondary)',
+                  marginBottom: '0.25rem'
+                }}>
+                  Accuracy
+                </div>
+                <div style={{
+                  fontSize: '1.5rem',
+                  fontWeight: '700',
+                  color: '#10B981'
+                }}>
+                  {(professionalData.model_metrics.accuracy * 100).toFixed(1)}%
+                </div>
+              </div>
+              <div>
+                <div style={{
+                  fontSize: '0.875rem',
+                  color: 'var(--text-secondary)',
+                  marginBottom: '0.25rem'
+                }}>
+                  Status
+                </div>
+                <div style={{
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  color: professionalData.model_metrics.status === 'active' ? '#10B981' : '#F59E0B'
+                }}>
+                  {professionalData.model_metrics.status}
+                </div>
+              </div>
+              <div>
+                <div style={{
+                  fontSize: '0.875rem',
+                  color: 'var(--text-secondary)',
+                  marginBottom: '0.25rem'
+                }}>
+                  Workflow
+                </div>
+                <div style={{
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  color: 'var(--text-primary)'
+                }}>
+                  {professionalData.workflow}
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          {/* Top Products by Retention Class */}
+          {Object.keys(professionalData.top_products_by_retention_class).length > 0 && (
+            <Card padding="lg">
+              <h3 style={{
+                fontSize: '1rem',
+                fontWeight: '600',
+                color: 'var(--text-primary)',
+                marginBottom: '1rem'
+              }}>
+                Top Products by Retention Class
+              </h3>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                gap: '1.5rem'
+              }}>
+                {Object.entries(professionalData.top_products_by_retention_class).map(([retentionClass, products]) => (
+                  <div key={retentionClass}>
+                    <h4 style={{
+                      fontSize: '0.875rem',
+                      fontWeight: '600',
+                      color: retentionClass === 'Returning' ? '#10B981' : '#EF4444',
+                      marginBottom: '0.75rem',
+                      paddingBottom: '0.5rem',
+                      borderBottom: `2px solid ${retentionClass === 'Returning' ? '#10B981' : '#EF4444'}20`
+                    }}>
+                      {retentionClass} Customers
+                    </h4>
+                    <div style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '0.5rem'
+                    }}>
+                      {products.slice(0, 5).map((product, index) => (
+                        <div key={index} style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          padding: '0.5rem',
+                          backgroundColor: 'var(--bg-secondary)',
+                          borderRadius: '0.375rem',
+                          fontSize: '0.875rem'
+                        }}>
+                          <span style={{ color: 'var(--text-primary)' }}>
+                            {product.Product}
+                          </span>
+                          <span style={{
+                            color: 'var(--text-secondary)',
+                            fontWeight: '500'
+                          }}>
+                            {product.Count}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+        </div>
+      )}
+
+      {/* Error Display */}
+      {error && (
+        <Card padding="md" style={{ 
+          marginTop: '1rem',
+          backgroundColor: '#FEF2F2',
+          border: '1px solid #FECACA'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            color: '#DC2626'
+          }}>
+            <AlertTriangle size={16} />
+            <span style={{ fontSize: '0.875rem', fontWeight: '500' }}>
+              Error loading data: {error}
+            </span>
+          </div>
+        </Card>
+      )}
     </DashboardLayout>
   );
 };
