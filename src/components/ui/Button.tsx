@@ -2,8 +2,8 @@ import React from 'react';
 
 interface ButtonProps {
   children: React.ReactNode;
-  onClick?: () => void;
-  variant?: 'primary' | 'secondary' | 'danger';
+  onClick?: (e?: any) => void;
+  variant?: 'primary' | 'secondary' | 'danger' | 'outline' | 'default';
   size?: 'sm' | 'md' | 'lg';
   disabled?: boolean;
   className?: string;
@@ -25,6 +25,8 @@ export const Button: React.FC<ButtonProps> = ({
     primary: 'btn-primary',
     secondary: 'btn-secondary',
     danger: 'btn-danger',
+    outline: 'bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-50',
+    default: 'bg-blue-600 text-white hover:bg-blue-700',
   };
   
   const sizeClasses = {

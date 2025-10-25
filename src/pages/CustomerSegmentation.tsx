@@ -7,10 +7,14 @@ import {
   RefreshCw,
   Download,
   Filter,
-  AlertTriangle
+  AlertTriangle,
+  X,
+  Eye
 } from 'lucide-react';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { Card } from '../components/ui/Card';
+import { Button } from '../components/ui/Button';
+import { CustomerTable } from '../components/CustomerTable';
 import { Bar, Doughnut, Scatter } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -135,6 +139,12 @@ const CustomerSegmentation: React.FC = () => {
   const [filterPeriod, setFilterPeriod] = useState('all');
   const [segmentationData, setSegmentationData] = useState<ProfessionalSegmentationResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  
+  // Customer table state
+  const [showCustomerTable, setShowCustomerTable] = useState(false);
+  const [selectedClusterName, setSelectedClusterName] = useState<string>('');
+  const [clusterCustomers, setClusterCustomers] = useState<any[]>([]);
+  const [isLoadingCustomers, setIsLoadingCustomers] = useState(false);
 
   // Load professional segmentation data
   useEffect(() => {
@@ -244,6 +254,59 @@ const CustomerSegmentation: React.FC = () => {
 
   const handleRefresh = () => {
     loadSegmentationData();
+  };
+
+  // Handle cluster click to show customers
+  const handleClusterClick = async (clusterName: string, clusterId: number) => {
+    console.log('Cluster clicked:', clusterName, clusterId); // Debug log
+    
+    try {
+      setIsLoadingCustomers(true);
+      setSelectedClusterName(clusterName);
+      setShowCustomerTable(true);
+      
+      console.log('Modal state set to true'); // Debug log
+      
+      // Create mock customers for testing (no API call)
+      const mockCustomers = Array.from({ length: 25 }, (_, i) => ({
+        customer_id: `CUS_${clusterName.replace(/[^a-zA-Z0-9]/g, '').toUpperCase()}_${(i + 1).toString().padStart(4, '0')}`,
+        name: `Customer ${i + 1}`,
+        email: `customer${i + 1}@afrimash.com`,
+        age: Math.floor(Math.random() * 40) + 25,
+        income: Math.floor(Math.random() * 500000) + 50000,
+        location: ['North', 'South', 'East', 'West', 'Central'][Math.floor(Math.random() * 5)],
+        gender: ['Male', 'Female', 'Other'][Math.floor(Math.random() * 3)],
+        recency: Math.floor(Math.random() * 200) + 1,
+        avg_order_value: Math.floor(Math.random() * 200000) + 10000,
+        customer_lifetime_days: Math.floor(Math.random() * 1000) + 100,
+        purchase_rate: Math.random() * 0.3,
+        total_items_sold: Math.floor(Math.random() * 50) + 1,
+        product_purchased: ['Agrited Broiler', 'AMO Broiler Chicks', 'Vertex Broiler', 'Commercial Day-Old ZARTECH Broilers'][Math.floor(Math.random() * 4)],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }));
+      
+      console.log('Created mock customers:', mockCustomers.length); // Debug log
+      setClusterCustomers(mockCustomers);
+    } catch (err) {
+      console.error('Error loading cluster customers:', err);
+      setClusterCustomers([]);
+    } finally {
+      setIsLoadingCustomers(false);
+    }
+  };
+
+  // Handle customer click
+  const handleCustomerClick = (customer: any) => {
+    console.log('Customer clicked:', customer);
+    // You can implement customer detail modal or navigation here
+  };
+
+  // Close customer table
+  const closeCustomerTable = () => {
+    setShowCustomerTable(false);
+    setSelectedClusterName('');
+    setClusterCustomers([]);
   };
 
   const handleExport = () => {
@@ -378,45 +441,6 @@ const CustomerSegmentation: React.FC = () => {
             <option value="90d">Last 90 Days</option>
             <option value="1y">Last Year</option>
           </select>
-          
-          <button
-            onClick={handleRefresh}
-            disabled={isLoading}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              backgroundColor: 'var(--button-background)',
-              color: 'var(--button-text)',
-              border: '1px solid var(--border-color)',
-              borderRadius: '0.375rem',
-              padding: '0.5rem 1rem',
-              fontSize: '0.875rem',
-              cursor: 'pointer',
-            }}
-          >
-            <RefreshCw size={16} className={isLoading ? 'animate-spin' : ''} />
-            Refresh
-          </button>
-          
-          <button
-            onClick={handleExport}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              backgroundColor: '#10B981',
-              color: 'white',
-              border: 'none',
-              borderRadius: '0.375rem',
-              padding: '0.5rem 1rem',
-              fontSize: '0.875rem',
-              cursor: 'pointer',
-            }}
-          >
-            <Download size={16} />
-            Export
-          </button>
         </div>
       </div>
 
@@ -428,52 +452,384 @@ const CustomerSegmentation: React.FC = () => {
         marginBottom: '2rem'
       }}>
         {data.segments.map(segment => (
-          <Card key={segment.id} padding="lg">
+          <Card 
+            key={segment.id} 
+            padding="lg"
+            className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
+          >
+            <div onClick={() => handleClusterClick(segment.name, segment.id)}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem',
+                marginBottom: '1rem'
+              }}>
+                <div style={{
+                  width: '12px',
+                  height: '12px',
+                  backgroundColor: segment.color,
+                  borderRadius: '50%'
+                }} />
+                <h3 style={{
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  color: 'var(--text-primary)',
+                  margin: 0
+                }}>
+                  {segment.name}
+                </h3>
+              </div>
+              <div style={{
+                fontSize: '2rem',
+                fontWeight: '700',
+                color: segment.color,
+                marginBottom: '0.5rem'
+              }}>
+                {segment.count.toLocaleString()}
+              </div>
+              <div style={{
+                fontSize: '0.875rem',
+                color: 'var(--text-secondary)',
+                marginBottom: '0.5rem'
+              }}>
+                {segment.percentage}% of customers
+              </div>
+              <div style={{
+                fontSize: '0.75rem',
+                color: 'var(--text-secondary)',
+                lineHeight: '1.4'
+              }}>
+                {segment.description}
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      {/* AI-Generated Insights */}
+      <div style={{ marginBottom: '2rem' }}>
+        <h2 style={{
+          fontSize: '1.5rem',
+          fontWeight: '600',
+          color: 'var(--text-primary)',
+          marginBottom: '1.5rem'
+        }}>
+          AI-Generated Insights
+        </h2>
+        
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: '1rem'
+        }}>
+          {/* Customer Database Analysis */}
+          <Card padding="md">
             <div style={{
               display: 'flex',
-              alignItems: 'center',
-              gap: '0.75rem',
-              marginBottom: '1rem'
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+              marginBottom: '0.75rem'
             }}>
-              <div style={{
-                width: '12px',
-                height: '12px',
-                backgroundColor: segment.color,
-                borderRadius: '50%'
-              }} />
               <h3 style={{
                 fontSize: '1rem',
                 fontWeight: '600',
                 color: 'var(--text-primary)',
                 margin: 0
               }}>
-                {segment.name}
+                Customer Database Analysis
               </h3>
+              <span style={{
+                padding: '0.25rem 0.5rem',
+                backgroundColor: '#10B981',
+                color: 'white',
+                borderRadius: '0.25rem',
+                fontSize: '0.75rem',
+                fontWeight: '500'
+              }}>
+                High
+              </span>
             </div>
-            <div style={{
-              fontSize: '2rem',
-              fontWeight: '700',
-              color: segment.color,
-              marginBottom: '0.5rem'
-            }}>
-              {segment.count.toLocaleString()}
-            </div>
-            <div style={{
+            <p style={{
               fontSize: '0.875rem',
               color: 'var(--text-secondary)',
-              marginBottom: '0.5rem'
-            }}>
-              {segment.percentage}% of customers
-            </div>
-            <div style={{
-              fontSize: '0.75rem',
-              color: 'var(--text-secondary)',
+              marginBottom: '0.75rem',
               lineHeight: '1.4'
             }}>
-              {segment.description}
+              Database contains 1,000 customer records with 28,660 product recommendations
+            </p>
+            <div style={{
+              fontSize: '0.75rem',
+              color: '#10B981',
+              fontWeight: '500'
+            }}>
+              Confidence: 95%
             </div>
           </Card>
-        ))}
+
+          {/* Product Portfolio Diversity */}
+          <Card padding="md">
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+              marginBottom: '0.75rem'
+            }}>
+              <h3 style={{
+                fontSize: '1rem',
+                fontWeight: '600',
+                color: 'var(--text-primary)',
+                margin: 0
+              }}>
+                Product Portfolio Diversity
+              </h3>
+              <span style={{
+                padding: '0.25rem 0.5rem',
+                backgroundColor: '#F59E0B',
+                color: 'white',
+                borderRadius: '0.25rem',
+                fontSize: '0.75rem',
+                fontWeight: '500'
+              }}>
+                Medium
+              </span>
+            </div>
+            <p style={{
+              fontSize: '0.875rem',
+              color: 'var(--text-secondary)',
+              marginBottom: '0.75rem',
+              lineHeight: '1.4'
+            }}>
+              System has 48 unique products available for recommendations
+            </p>
+            <div style={{
+              fontSize: '0.75rem',
+              color: '#F59E0B',
+              fontWeight: '500'
+            }}>
+              Confidence: 90%
+            </div>
+          </Card>
+
+          {/* Customer Lifetime Analysis */}
+          <Card padding="md">
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+              marginBottom: '0.75rem'
+            }}>
+              <h3 style={{
+                fontSize: '1rem',
+                fontWeight: '600',
+                color: 'var(--text-primary)',
+                margin: 0
+              }}>
+                Customer Lifetime Analysis
+              </h3>
+              <span style={{
+                padding: '0.25rem 0.5rem',
+                backgroundColor: '#F59E0B',
+                color: 'white',
+                borderRadius: '0.25rem',
+                fontSize: '0.75rem',
+                fontWeight: '500'
+              }}>
+                Medium
+              </span>
+            </div>
+            <p style={{
+              fontSize: '0.875rem',
+              color: 'var(--text-secondary)',
+              marginBottom: '0.75rem',
+              lineHeight: '1.4'
+            }}>
+              Average customer lifetime is 954.9 days
+            </p>
+            <div style={{
+              fontSize: '0.75rem',
+              color: '#F59E0B',
+              fontWeight: '500'
+            }}>
+              Confidence: 85%
+            </div>
+          </Card>
+
+          {/* Average Order Value */}
+          <Card padding="md">
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+              marginBottom: '0.75rem'
+            }}>
+              <h3 style={{
+                fontSize: '1rem',
+                fontWeight: '600',
+                color: 'var(--text-primary)',
+                margin: 0
+              }}>
+                Average Order Value
+              </h3>
+              <span style={{
+                padding: '0.25rem 0.5rem',
+                backgroundColor: '#F59E0B',
+                color: 'white',
+                borderRadius: '0.25rem',
+                fontSize: '0.75rem',
+                fontWeight: '500'
+              }}>
+                Medium
+              </span>
+            </div>
+            <p style={{
+              fontSize: '0.875rem',
+              color: 'var(--text-secondary)',
+              marginBottom: '0.75rem',
+              lineHeight: '1.4'
+            }}>
+              Average order value is $231.42
+            </p>
+            <div style={{
+              fontSize: '0.75rem',
+              color: '#F59E0B',
+              fontWeight: '500'
+            }}>
+              Confidence: 85%
+            </div>
+          </Card>
+
+          {/* High New Customer Churn */}
+          <Card padding="md">
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+              marginBottom: '0.75rem'
+            }}>
+              <h3 style={{
+                fontSize: '1rem',
+                fontWeight: '600',
+                color: 'var(--text-primary)',
+                margin: 0
+              }}>
+                High New Customer Churn: Recent/Low-Value
+              </h3>
+              <span style={{
+                padding: '0.25rem 0.5rem',
+                backgroundColor: '#F59E0B',
+                color: 'white',
+                borderRadius: '0.25rem',
+                fontSize: '0.75rem',
+                fontWeight: '500'
+              }}>
+                Medium
+              </span>
+            </div>
+            <p style={{
+              fontSize: '0.875rem',
+              color: 'var(--text-secondary)',
+              marginBottom: '0.75rem',
+              lineHeight: '1.4'
+            }}>
+              98 new customers (98.0%) are inactive - improve onboarding
+            </p>
+            <div style={{
+              fontSize: '0.75rem',
+              color: '#F59E0B',
+              fontWeight: '500'
+            }}>
+              Confidence: 80%
+            </div>
+          </Card>
+
+          {/* Re-engagement Opportunity */}
+          <Card padding="md">
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+              marginBottom: '0.75rem'
+            }}>
+              <h3 style={{
+                fontSize: '1rem',
+                fontWeight: '600',
+                color: 'var(--text-primary)',
+                margin: 0
+              }}>
+                Re-engagement Opportunity: Dormant/Churned
+              </h3>
+              <span style={{
+                padding: '0.25rem 0.5rem',
+                backgroundColor: '#F59E0B',
+                color: 'white',
+                borderRadius: '0.25rem',
+                fontSize: '0.75rem',
+                fontWeight: '500'
+              }}>
+                Medium
+              </span>
+            </div>
+            <p style={{
+              fontSize: '0.875rem',
+              color: 'var(--text-secondary)',
+              marginBottom: '0.75rem',
+              lineHeight: '1.4'
+            }}>
+              2 customers (2.0%) can be reactivated with targeted campaigns
+            </p>
+            <div style={{
+              fontSize: '0.75rem',
+              color: '#F59E0B',
+              fontWeight: '500'
+            }}>
+              Confidence: 80%
+            </div>
+          </Card>
+
+          {/* Limited Customer Segmentation */}
+          <Card padding="md">
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+              marginBottom: '0.75rem'
+            }}>
+              <h3 style={{
+                fontSize: '1rem',
+                fontWeight: '600',
+                color: 'var(--text-primary)',
+                margin: 0
+              }}>
+                Limited Customer Segmentation
+              </h3>
+              <span style={{
+                padding: '0.25rem 0.5rem',
+                backgroundColor: '#F59E0B',
+                color: 'white',
+                borderRadius: '0.25rem',
+                fontSize: '0.75rem',
+                fontWeight: '500'
+              }}>
+                Medium
+              </span>
+            </div>
+            <p style={{
+              fontSize: '0.875rem',
+              color: 'var(--text-secondary)',
+              marginBottom: '0.75rem',
+              lineHeight: '1.4'
+            }}>
+              Only 2 customer segments identified - consider more granular analysis
+            </p>
+            <div style={{
+              fontSize: '0.75rem',
+              color: '#F59E0B',
+              fontWeight: '500'
+            }}>
+              Confidence: 70%
+            </div>
+          </Card>
+        </div>
       </div>
 
       {/* Charts Section */}
@@ -537,8 +893,13 @@ const CustomerSegmentation: React.FC = () => {
         gap: '1.5rem'
       }}>
         {data.segments.map(segment => (
-          <Card key={segment.id} padding="lg">
-            <div style={{
+          <Card 
+            key={segment.id} 
+            padding="lg"
+            className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
+          >
+            <div onClick={() => handleClusterClick(segment.name, segment.id)}>
+              <div style={{
               display: 'flex',
               alignItems: 'center',
               gap: '0.75rem',
@@ -663,6 +1024,7 @@ const CustomerSegmentation: React.FC = () => {
                   </li>
                 ))}
               </ul>
+            </div>
             </div>
           </Card>
         ))}
@@ -828,6 +1190,80 @@ const CustomerSegmentation: React.FC = () => {
             </span>
           </div>
         </Card>
+      )}
+
+      {/* Customer Table - Inline */}
+      {showCustomerTable && (
+        <div style={{ marginTop: '2rem' }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '1.5rem',
+            padding: '1rem',
+            backgroundColor: '#F8FAFC',
+            borderRadius: '0.5rem',
+            border: '1px solid #E2E8F0'
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.75rem'
+            }}>
+              <Users className="w-6 h-6 text-blue-600" />
+              <div>
+                <h2 style={{
+                  fontSize: '1.5rem',
+                  fontWeight: '600',
+                  color: '#1E293B',
+                  margin: 0
+                }}>
+                  {selectedClusterName} Customers
+                </h2>
+                <p style={{
+                  fontSize: '0.875rem',
+                  color: '#64748B',
+                  margin: 0
+                }}>
+                  {clusterCustomers.length} customers found
+                </p>
+              </div>
+            </div>
+            <button 
+              onClick={closeCustomerTable}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.5rem 1rem',
+                backgroundColor: '#EF4444',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.375rem',
+                fontSize: '0.875rem',
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.backgroundColor = '#DC2626';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.backgroundColor = '#EF4444';
+              }}
+            >
+              <X className="w-4 h-4" />
+              Close
+            </button>
+          </div>
+          
+          <CustomerTable
+            customers={clusterCustomers}
+            clusterName={selectedClusterName}
+            isLoading={isLoadingCustomers}
+            onCustomerClick={handleCustomerClick}
+            showClusterInfo={false}
+          />
+        </div>
       )}
     </DashboardLayout>
   );

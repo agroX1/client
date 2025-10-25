@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { Card } from '../components/ui/Card';
-import { apiService, handleApiError } from '../services/api';
+import { apiService } from '../services/api';
 
 // Mock data for Customer Intelligence Dashboard Overview
 const mockDashboardData = {
@@ -122,11 +122,7 @@ const mockDashboardData = {
 const Dashboard: React.FC = () => {
   const [data, setData] = useState(mockDashboardData);
   const [isLoading, setIsLoading] = useState(true);
-  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [apiStatus, setApiStatus] = useState<'connected' | 'disconnected' | 'error'>('disconnected');
-  
-  // Get user info from localStorage
-  const userName = localStorage.getItem('userName') || 'User';
 
   // Load real-time data from professional API
   useEffect(() => {
@@ -146,9 +142,11 @@ const Dashboard: React.FC = () => {
       
       // Load segmentation data
       const segmentationData = await apiService.getProfessionalSegmentation();
+      console.log('Segmentation data loaded:', segmentationData);
       
       // Load retention data
       const retentionData = await apiService.getProfessionalRetention();
+      console.log('Retention data loaded:', retentionData);
       
       // Update dashboard with real data
       if (segmentationData && retentionData) {
@@ -214,7 +212,6 @@ const Dashboard: React.FC = () => {
           }
         };
         setData(updatedData);
-        setLastUpdated(new Date());
       }
     } catch (err) {
       setApiStatus('error');
@@ -287,33 +284,6 @@ const Dashboard: React.FC = () => {
             gap: '0.75rem',
             flexWrap: 'wrap'
           }}>
-            {/* API Status */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              padding: '0.5rem 0.75rem',
-              backgroundColor: apiStatus === 'connected' ? '#F0FDF4' : apiStatus === 'error' ? '#FEF2F2' : '#F9FAFB',
-              border: `1px solid ${apiStatus === 'connected' ? '#BBF7D0' : apiStatus === 'error' ? '#FECACA' : '#E5E7EB'}`,
-              borderRadius: '0.5rem',
-              minWidth: 'fit-content'
-            }}>
-              <div style={{
-                width: '8px',
-                height: '8px',
-                borderRadius: '50%',
-                backgroundColor: apiStatus === 'connected' ? '#10B981' : apiStatus === 'error' ? '#EF4444' : '#6B7280'
-              }} />
-              <span style={{
-                fontSize: 'clamp(0.625rem, 2vw, 0.75rem)',
-                fontWeight: '500',
-                color: apiStatus === 'connected' ? '#059669' : apiStatus === 'error' ? '#DC2626' : '#6B7280',
-                whiteSpace: 'nowrap'
-              }}>
-                {apiStatus === 'connected' ? 'API Connected' : apiStatus === 'error' ? 'API Error' : 'API Disconnected'}
-              </span>
-            </div>
-            
             {/* Refresh Button */}
             <button
               onClick={handleRefresh}
@@ -578,98 +548,10 @@ const Dashboard: React.FC = () => {
         })}
       </div>
 
-      {/* Recent Insights and Top Segments */}
+      {/* Top Customer Segments */}
       <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-        gap: '0.75rem',
         marginBottom: '1.5rem'
       }}>
-        {/* Recent AI Insights */}
-        <Card padding="lg">
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            marginBottom: '1.5rem'
-          }}>
-            <Eye size={20} style={{ color: '#8B5CF6' }} />
-            <h3 style={{
-              fontSize: 'clamp(1rem, 3vw, 1.25rem)',
-              fontWeight: '600',
-              color: 'var(--text-primary)',
-              margin: 0
-            }}>
-              Recent AI Insights
-            </h3>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {data.recentInsights.map((insight) => (
-              <div key={insight.id} style={{
-                padding: '1rem',
-                backgroundColor: 'var(--card-background)',
-                border: '1px solid var(--border-color)',
-                borderRadius: '0.5rem',
-                borderLeft: `4px solid ${
-                  insight.type === 'opportunity' ? '#10B981' :
-                  insight.type === 'warning' ? '#EF4444' : '#3B82F6'
-                }`
-              }}>
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'flex-start',
-                  marginBottom: '0.5rem'
-                }}>
-                  <h4 style={{
-                    fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)',
-                    fontWeight: '600',
-                    color: 'var(--text-primary)',
-                    margin: 0
-                  }}>
-                    {insight.title}
-                  </h4>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.25rem'
-                  }}>
-                    <div style={{
-                      width: '6px',
-                      height: '6px',
-                      borderRadius: '50%',
-                      backgroundColor: insight.impact === 'High' ? '#EF4444' :
-                                     insight.impact === 'Medium' ? '#F59E0B' : '#10B981'
-                    }} />
-                    <span style={{
-                      fontSize: '0.75rem',
-                      fontWeight: '600',
-                      color: 'var(--text-secondary)'
-                    }}>
-                      {insight.impact}
-                    </span>
-                  </div>
-                </div>
-                <p style={{
-                  fontSize: 'clamp(0.625rem, 2vw, 0.75rem)',
-                  color: 'var(--text-secondary)',
-                  margin: 0,
-                  marginBottom: '0.5rem',
-                  lineHeight: '1.4'
-                }}>
-                  {insight.description}
-                </p>
-                <div style={{
-                  fontSize: 'clamp(0.625rem, 2vw, 0.75rem)',
-                  color: 'var(--text-secondary)'
-                }}>
-                  Confidence: {(insight.confidence * 100).toFixed(0)}%
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
-
         {/* Top Customer Segments */}
         <Card padding="lg">
           <div style={{

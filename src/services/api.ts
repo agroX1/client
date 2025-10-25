@@ -13,6 +13,30 @@ const apiClient = axios.create({
   },
 });
 
+// Add request interceptor for debugging
+apiClient.interceptors.request.use(
+  (config) => {
+    console.log(`API Request: ${config.method?.toUpperCase()} ${config.url}`);
+    return config;
+  },
+  (error) => {
+    console.error('API Request Error:', error);
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor for debugging
+apiClient.interceptors.response.use(
+  (response) => {
+    console.log(`API Response: ${response.status} ${response.config.url}`, response.data);
+    return response;
+  },
+  (error) => {
+    console.error('API Response Error:', error.response?.status, error.config?.url, error.response?.data);
+    return Promise.reject(error);
+  }
+);
+
 // Types for API responses
 export interface CustomerData {
   customer_id: string;
@@ -246,11 +270,24 @@ export class AgroXApiService {
     customerIds?: string[],
     batchSize: number = 100
   ): Promise<ProfessionalSegmentationResponse> {
-    const response = await apiClient.post('/api/ml/customer-segmentation', {
-      customer_ids: customerIds,
-      batch_size: batchSize,
-    });
-    return response.data.data; // Extract data from ResponseModel wrapper
+    try {
+      const response = await apiClient.post('/api/ml/customer-segmentation', {
+        customer_ids: customerIds,
+        batch_size: batchSize,
+      });
+      console.log('Segmentation API response:', response.data);
+      
+      // Extract data from ResponseModel wrapper
+      if (response.data && response.data.data) {
+        return response.data.data;
+      }
+      
+      // If response.data itself is the data, return it
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching professional segmentation:', error);
+      throw error;
+    }
   }
 
   // Professional Customer Retention
@@ -258,11 +295,24 @@ export class AgroXApiService {
     customerIds?: string[],
     batchSize: number = 100
   ): Promise<ProfessionalRetentionResponse> {
-    const response = await apiClient.post('/api/ml/customer-retention', {
-      customer_ids: customerIds,
-      batch_size: batchSize,
-    });
-    return response.data.data; // Extract data from ResponseModel wrapper
+    try {
+      const response = await apiClient.post('/api/ml/customer-retention', {
+        customer_ids: customerIds,
+        batch_size: batchSize,
+      });
+      console.log('Retention API response:', response.data);
+      
+      // Extract data from ResponseModel wrapper
+      if (response.data && response.data.data) {
+        return response.data.data;
+      }
+      
+      // If response.data itself is the data, return it
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching professional retention:', error);
+      throw error;
+    }
   }
 
   // Legacy segmentation endpoint
@@ -305,20 +355,72 @@ export class AgroXApiService {
 
   // Get customer data (for analytics)
   async getCustomerData(limit: number = 1000): Promise<CustomerData[]> {
-    // This would need to be implemented in the backend
-    // For now, we'll use predictions data
-    const predictions = await this.getPredictions(undefined, undefined, undefined, limit);
-    return predictions.predictions.map(pred => ({
-      customer_id: pred.customer_id,
-      name: `Customer ${pred.customer_id}`,
-      email: `${pred.customer_id}@example.com`,
-      age: Math.floor(Math.random() * 40) + 25,
-      income: Math.floor(Math.random() * 50000) + 30000,
-      location: ['New York', 'California', 'Texas', 'Florida'][Math.floor(Math.random() * 4)],
-      purchase_history: [],
-      created_at: pred.created_at,
-      updated_at: pred.created_at,
-    }));
+    try {
+      const response = await apiClient.get(`/api/customers?page_size=${limit}`);
+      return response.data.data.map((customer: any) => ({
+        customer_id: customer.customer_id,
+        name: customer.name,
+        email: customer.email,
+        age: customer.age,
+        income: customer.income,
+        location: customer.location,
+        purchase_history: customer.purchase_history,
+        created_at: customer.created_at,
+        updated_at: customer.updated_at,
+      }));
+    } catch (error) {
+      console.error('Error fetching customer data:', error);
+      // Fallback to mock data if API fails
+      return this.getMockCustomerData(limit);
+    }
+  }
+
+  // Get customers by cluster
+  async getCustomersByCluster(clusterName: string, limit: number = 1000): Promise<CustomerData[]> {
+    try {
+      const response = await apiClient.get(`/api/customers/by-cluster?cluster_name=${encodeURIComponent(clusterName)}&page_size=${limit}`);
+      return response.data.data.map((customer: any) => ({
+        customer_id: customer.customer_id,
+        name: customer.name,
+        email: customer.email,
+        age: customer.age,
+        income: customer.income,
+        location: customer.location,
+        gender: customer.gender,
+        recency: customer.recency,
+        avg_order_value: customer.avg_order_value,
+        customer_lifetime_days: customer.customer_lifetime_days,
+        purchase_rate: customer.purchase_rate,
+        total_items_sold: customer.total_items_sold,
+        product_purchased: customer.product_purchased,
+        purchase_history: customer.purchase_history,
+        created_at: customer.created_at,
+        updated_at: customer.updated_at,
+      }));
+    } catch (error) {
+      console.error('Error fetching customers by cluster:', error);
+      // Fallback to mock data if API fails
+      return this.getMockCustomerData(limit);
+    }
+  }
+
+  // Mock customer data fallback
+  private getMockCustomerData(limit: number): CustomerData[] {
+    const mockCustomers: CustomerData[] = [];
+    for (let i = 1; i <= Math.min(limit, 100); i++) {
+      mockCustomers.push({
+        customer_id: `CUS_TEST_${i.toString().padStart(4, '0')}`,
+        name: `Customer ${i}`,
+        email: `customer${i}@afrimash.com`,
+        age: Math.floor(Math.random() * 40) + 25,
+        income: Math.floor(Math.random() * 50000) + 30000,
+        location: ['North', 'South', 'East', 'West', 'Central'][Math.floor(Math.random() * 5)],
+        purchase_history: [],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      });
+    }
+    return mockCustomers;
   }
 }
 

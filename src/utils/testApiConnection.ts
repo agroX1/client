@@ -44,8 +44,8 @@ export const testApiConnection = async () => {
   }
 };
 
-// Auto-test on module load (for development)
-if (process.env.NODE_ENV === 'development') {
+// Auto-test on module load (for development) - only in browser environment
+if (typeof window !== 'undefined' && import.meta.env.MODE === 'development') {
   testApiConnection().then(result => {
     if (result.success) {
       console.log('🎉 API connection test completed successfully!');

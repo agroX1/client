@@ -5,8 +5,7 @@ import Dashboard from './pages/dashboard';
 import CustomerSegmentation from './pages/CustomerSegmentation';
 import CustomerRetention from './pages/CustomerRetention';
 import ProductRecommendations from './pages/ProductRecommendations';
-import CustomerInsightsDashboard from './pages/CustomerInsightsDashboard';
-import ImplementationRoadmap from './pages/ImplementationRoadmap';
+
 import { SignUp } from './components/account';
 
 // Import styles
@@ -33,8 +32,6 @@ function App() {
           <Route path="/dashboard/segmentation" element={<CustomerSegmentation />} />
           <Route path="/dashboard/retention" element={<CustomerRetention />} />
           <Route path="/dashboard/recommendations" element={<ProductRecommendations />} />
-          <Route path="/dashboard/insights" element={<CustomerInsightsDashboard />} />
-          <Route path="/dashboard/roadmap" element={<ImplementationRoadmap />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </main>

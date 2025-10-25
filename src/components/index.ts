@@ -6,3 +6,6 @@ export { Badge } from './ui/Badge';
 
 // Export all layout components
 export { Sidebar } from './layout/sidebar';
+
+// Export all feature components
+export { CustomerTable } from './CustomerTable';

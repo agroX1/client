@@ -5,9 +5,7 @@ import {
   Menu,
   Users,
   Target,
-  TrendingUp,
-  Eye,
-  Map
+  TrendingUp
 } from 'lucide-react';
 import { ProfileDropdown } from './profile';
 
@@ -39,8 +37,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCollapseChange }) =>
     { id: 'segmentation', label: 'Segmentation', icon: Users, path: '/dashboard/segmentation' },
     { id: 'retention', label: 'Retention', icon: TrendingUp, path: '/dashboard/retention' },
     { id: 'recommendations', label: 'Recommendations', icon: Target, path: '/dashboard/recommendations' },
-    { id: 'insights', label: 'Insights', icon: Eye, path: '/dashboard/insights' },
-    { id: 'roadmap', label: 'Roadmap', icon: Map, path: '/dashboard/roadmap' },
   ];
   
 
@@ -67,13 +63,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCollapseChange }) =>
     <aside style={sidebarStyle}>
         {/* Logo Section */}
         <div style={{ 
-          padding: isCollapsed ? '0.75rem 0.5rem' : '0.75rem 0.75rem', 
-          marginBottom: isCollapsed ? '0.5rem' : '1rem',
+          padding: isCollapsed ? '1rem 0.75rem' : '1rem 1rem', 
+          marginBottom: isCollapsed ? '1rem' : '1.5rem',
           display: 'flex',
           alignItems: 'center',
-          gap: '0.5rem',
+          gap: '0.75rem',
           borderBottom: 'none',
-          justifyContent: isCollapsed ? 'center' : 'flex-start'
+          justifyContent: isCollapsed ? 'center' : 'flex-start',
+          minHeight: isCollapsed ? '60px' : '80px'
         }}>
           {isCollapsed ? (
             <div style={{
@@ -84,14 +81,19 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCollapseChange }) =>
               width: '100%'
             }}>
               <img 
-                src="/assets/logo.svg" 
-                alt="AgroX Logo" 
-                style={{ width: '1.5rem', height: '1.5rem' }}
+                src="/assets/logo-1.webp" 
+                alt="Logo" 
+                style={{ 
+                  width: 'auto', 
+                  height: '2rem',
+                  maxWidth: '100%',
+                  objectFit: 'contain'
+                }}
               />
               <button
                 onClick={handleCollapseToggle}
                 style={{
-                  padding: '0.5rem',
+                  padding: '0.75rem',
                   backgroundColor: 'transparent',
                   color: 'var(--text-secondary)',
                   border: 'none',
@@ -108,23 +110,20 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCollapseChange }) =>
           ) : (
             <>
               <img 
-                src="/assets/logo.svg" 
-                alt="AgroX Logo" 
-                style={{ width: '1.5rem', height: '1.5rem' }}
+                src="/assets/logo-1.webp" 
+                alt="Logo" 
+                style={{ 
+                  width: 'auto', 
+                  height: '2rem',
+                  maxWidth: '100%',
+                  objectFit: 'contain'
+                }}
               />
-              <h1 style={{ 
-                fontSize: '1rem', 
-                fontWeight: '600', 
-                color: '#ffffff',
-                margin: 0
-              }}>
-                AgroX
-              </h1>
               <button
                 onClick={handleCollapseToggle}
                 style={{
                   marginLeft: 'auto',
-                  padding: '0.5rem',
+                  padding: '0.75rem',
                   backgroundColor: 'transparent',
                   color: 'var(--text-secondary)',
                   border: 'none',

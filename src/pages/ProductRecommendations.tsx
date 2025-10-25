@@ -1,15 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   Target, 
   ShoppingCart, 
   TrendingUp, 
   Star,
-  Filter,
   Search,
   Download,
   RefreshCw,
   Eye,
-  Heart,
   Package,
   BarChart3
 } from 'lucide-react';
@@ -163,10 +161,9 @@ const mockRecommendationData = {
 };
 
 const ProductRecommendations: React.FC = () => {
-  const [data, setData] = useState(mockRecommendationData);
+  const [data] = useState(mockRecommendationData);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedSegment, setSelectedSegment] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleRefresh = () => {
